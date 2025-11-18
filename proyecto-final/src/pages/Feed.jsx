@@ -1,8 +1,9 @@
+import styles from '../styles/pages/Feed.module.scss'
+
 function Feed() {
   return (
-    <div>
-      <h2>Feed</h2>
-      <p>Aquí se mostrarán las publicaciones de los estudiantes.</p>
+    <div className={styles.container}>
+      <h2>Feed de Publicaciones</h2>
     </div>
   )
 }

@@ -1,0 +1,22 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variables generales */
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --text: #f0f0f0;
+  --bg: #0f0f0f;
+  --card-bg: #1a1a1a;
+}
+
+/* Tipografía */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}

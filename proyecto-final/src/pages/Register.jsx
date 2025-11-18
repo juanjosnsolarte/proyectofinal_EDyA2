@@ -1,7 +1,10 @@
+import styles from '../styles/pages/Register.module.scss'
+
+
 function Register() {
   return (
-    <div>
-      <h2>Página de Registro</h2>
+    <div className={styles.container}>
+      <h2>Registro</h2>
     </div>
   )
 }
