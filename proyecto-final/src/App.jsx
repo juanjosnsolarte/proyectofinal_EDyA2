@@ -1,9 +1,9 @@
+import { AppRoutes } from './routes/AppRoutes'
+
 function App() {
   return (
-    <div>
-      <h1>Mini Red Social Universitaria</h1>
-    </div>
-  );
+    <AppRoutes />
+  )
 }
 
-export default App;
+export default App
