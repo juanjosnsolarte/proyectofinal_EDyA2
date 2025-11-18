@@ -3,7 +3,9 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Feed from '../pages/Feed'
 import Profile from '../pages/Profile'
+import NotFound from '../pages/NotFound'
 import Layout from '../components/Layout/Layout'
+
 
 export const AppRoutes = () => {
   return (
@@ -30,6 +32,12 @@ export const AppRoutes = () => {
         } 
       />
 
+      <Route 
+        path="*" 
+        element={
+          <NotFound />
+        } 
+      />
     </Routes>
   )
 }
