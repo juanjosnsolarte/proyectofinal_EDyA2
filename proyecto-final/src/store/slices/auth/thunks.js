@@ -22,6 +22,8 @@ const getAuthErrorMessage = (error) => {
       return 'No existe una cuenta con este correo.'
     case 'auth/wrong-password':
       return 'La contraseña es incorrecta.'
+    case 'auth/invalid-credential':
+      return 'Las credenciales han sido incorrectas.'
     default:
       return 'Ocurrió un error al procesar la autenticación.'
   }
@@ -66,6 +68,7 @@ export const registerWithEmailPassword = ({
       return { ok: true }
     } catch (error) {
       console.error('Error en registerWithEmailPassword:', error)
+
       const message = getAuthErrorMessage(error)
       dispatch(logout(message))
       return { ok: false, errorMessage: message }

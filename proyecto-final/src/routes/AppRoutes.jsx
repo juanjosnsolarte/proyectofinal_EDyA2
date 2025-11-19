@@ -6,7 +6,6 @@ import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
 import Layout from '../components/Layout/Layout'
 
-
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -14,30 +13,25 @@ export const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route 
-        path="/feed" 
+      <Route
+        path="/feed"
         element={
           <Layout>
             <Feed />
           </Layout>
-        } 
+        }
       />
 
-      <Route 
-        path="/profile/:id" 
+      <Route
+        path="/profile/:id"
         element={
           <Layout>
             <Profile />
           </Layout>
-        } 
+        }
       />
 
-      <Route 
-        path="*" 
-        element={
-          <NotFound />
-        } 
-      />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
