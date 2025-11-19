@@ -47,15 +47,15 @@ function Register() {
     }
 
     if (formState.university.trim() && !onlyLettersRegex.test(formState.university.trim())) {
-      newErrors.university = 'La universidad solo puede contener letras.'
+      newErrors.university = 'Este campo solo puede contener letras.'
     }
 
     if (formState.career.trim() && !onlyLettersRegex.test(formState.career.trim())) {
-      newErrors.career = 'La carrera solo puede contener letras.'
+      newErrors.career = 'Este campo solo puede contener letras.'
     }
 
     if (formState.semester.trim() && !onlyNumbersRegex.test(formState.semester.trim())) {
-      newErrors.semester = 'El semestre debe ser un número.'
+      newErrors.semester = 'Este campo debe ser un número.'
     }
 
     if (!formState.age.trim() || !onlyNumbersRegex.test(formState.age.trim())) {
