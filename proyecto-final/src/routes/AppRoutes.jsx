@@ -6,31 +6,64 @@ import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
 import Layout from '../components/Layout/Layout'
 
+import PrivateRoute from './guards/PrivateRoute'
+import PublicRoute from './guards/PublicRoute'
+
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* RUTAS PÚBLICAS */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
 
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
+
+      {/* RUTAS PRIVADAS */}
       <Route
         path="/feed"
         element={
-          <Layout>
-            <Feed />
-          </Layout>
+          <PrivateRoute>
+            <Layout>
+              <Feed />
+            </Layout>
+          </PrivateRoute>
         }
       />
 
       <Route
         path="/profile/:id"
         element={
-          <Layout>
-            <Profile />
-          </Layout>
+          <PrivateRoute>
+            <Layout>
+              <Profile />
+            </Layout>
+          </PrivateRoute>
         }
       />
 
+      {/* Error 404 - Página no encontrada */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

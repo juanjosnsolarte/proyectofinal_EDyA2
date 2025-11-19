@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  status: 'not-authenticated', // 'checking', 'authenticated'
-  user: null,                  // { uid, name, email, career, semester, university, age }
+  status: 'checking', // 'checking' | 'not-authenticated' | 'authenticated'
+  user: null,         
   errorMessage: null,
 }
 
