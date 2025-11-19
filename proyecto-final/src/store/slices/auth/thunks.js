@@ -8,6 +8,25 @@ import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../../../firebase/config'
 import { checkingCredentials, login, logout } from './authSlice'
 
+const getAuthErrorMessage = (error) => {
+  const code = error.code || ''
+
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return 'El correo ya ha sido registrado.'
+    case 'auth/invalid-email':
+      return 'El correo no tiene un formato válido.'
+    case 'auth/weak-password':
+      return 'La contraseña es demasiado débil. Usa al menos 6 caracteres.'
+    case 'auth/user-not-found':
+      return 'No existe una cuenta con este correo.'
+    case 'auth/wrong-password':
+      return 'La contraseña es incorrecta.'
+    default:
+      return 'Ocurrió un error al procesar la autenticación.'
+  }
+}
+
 // Thunk para registrar usuario nuevo
 export const registerWithEmailPassword = ({
   email,
@@ -29,7 +48,7 @@ export const registerWithEmailPassword = ({
       // Actualizar displayName
       await updateProfile(resp.user, { displayName: name })
 
-      // Guardar información extra en Firestore
+      // Guardar la información del usuario en Firestore
       const userDocRef = doc(db, 'users', uid)
       await setDoc(userDocRef, {
         uid,
@@ -42,21 +61,14 @@ export const registerWithEmailPassword = ({
         createdAt: new Date().toISOString(),
       })
 
-      // Actualizar estado en Redux
-      dispatch(
-        login({
-          uid,
-          name,
-          email,
-          career,
-          semester,
-          university,
-          age,
-        }),
-      )
+      dispatch(logout(null))
+
+      return { ok: true }
     } catch (error) {
       console.error('Error en registerWithEmailPassword:', error)
-      dispatch(logout(error.message))
+      const message = getAuthErrorMessage(error)
+      dispatch(logout(message))
+      return { ok: false, errorMessage: message }
     }
   }
 }
@@ -67,10 +79,11 @@ export const loginWithEmailPassword = ({ email, password }) => {
     dispatch(checkingCredentials())
 
     try {
+      // Login en Auth
       const resp = await signInWithEmailAndPassword(auth, email, password)
       const { uid, displayName } = resp.user
 
-      // Intentar leer datos extra del perfil en Firestore
+      // Leer datos extra del perfil en Firestore
       const userDocRef = doc(db, 'users', uid)
       const userSnap = await getDoc(userDocRef)
 
@@ -96,7 +109,8 @@ export const loginWithEmailPassword = ({ email, password }) => {
       dispatch(login(userData))
     } catch (error) {
       console.error('Error en loginWithEmailPassword:', error)
-      dispatch(logout(error.message))
+      const message = getAuthErrorMessage(error)
+      dispatch(logout(message))
     }
   }
 }
