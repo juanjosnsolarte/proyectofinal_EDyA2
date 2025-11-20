@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import {
@@ -9,12 +9,15 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import styles from '../styles/pages/feed.module.scss'
+import Stack from '../utils/structures/Stack'
 
 function Feed() {
   const { user } = useSelector(state => state.auth)
 
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+
+  const postsStackRef = useRef(new Stack())
 
   const getTypeLabel = (type) => {
     if (type === 'duda') return 'Duda'
@@ -27,19 +30,34 @@ function Feed() {
       try {
         const q = query(
           collection(db, 'posts'),
-          orderBy('createdAt', 'desc')
+          orderBy('createdAt', 'asc')
         )
 
         const snapshot = await getDocs(q)
+        const stack = postsStackRef.current
 
-        const docs = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        while (!stack.isEmpty()) stack.pop()
 
-        setPosts(docs)
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data()
+
+          stack.push({
+            id: docSnap.id,
+            authorName: data.authorName,
+            career: data.career,
+            semester: data.semester,
+            type: data.type,
+            text: data.text,
+            createdAt: data.createdAt,
+          })
+        })
+
+        console.log("PILA DE PUBLICACIONES (bottom -> top):")
+        stack.print()
+
+        setPosts(stack.toArrayFromTop())
       } catch (error) {
-        console.error('Error cargando publicaciones:', error)
+        console.error("Error cargando publicaciones:", error)
       } finally {
         setLoading(false)
       }
@@ -47,6 +65,7 @@ function Feed() {
 
     loadPosts()
   }, [])
+
 
   return (
     <div className={styles.page}>
@@ -68,16 +87,19 @@ function Feed() {
 
           {!loading && posts.length === 0 && (
             <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              Aún no hay publicaciones. Sé el primero en compartir algo, {user?.name || 'estudiante'}.
+              Aún no hay publicaciones. Sé el primero en compartir algo, {user?.name}.
             </p>
           )}
 
           {posts.map((post) => (
-            <article key={post.id} className={styles.postCard}>
+            <article
+              key={post.id}
+              className={styles.postCard}
+            >
               <div className={styles.postHeader}>
                 <div>
                   <div className={styles.postAuthor}>
-                    {post.authorName || 'Estudiante'}
+                    {post.authorName}
                   </div>
                   <div className={styles.postMeta}>
                     {post.career && <span>{post.career}</span>}
@@ -86,9 +108,7 @@ function Feed() {
                   </div>
                 </div>
 
-                <span
-                  className={`${styles.postType} ${styles[post.type]}`}
-                >
+                <span className={`${styles.postType} ${styles[post.type]}`}>
                   {getTypeLabel(post.type)}
                 </span>
               </div>
