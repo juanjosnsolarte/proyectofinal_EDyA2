@@ -4,8 +4,8 @@ import Register from '../pages/Register'
 import Feed from '../pages/Feed'
 import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
+import CreatePost from '../pages/CreatePost'
 import Layout from '../components/Layout/Layout'
-
 import PrivateRoute from './guards/PrivateRoute'
 import PublicRoute from './guards/PublicRoute'
 
@@ -63,6 +63,17 @@ export const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/create-post"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <CreatePost />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      
       {/* Error 404 - Página no encontrada */}
       <Route path="*" element={<NotFound />} />
     </Routes>
