@@ -1,16 +1,14 @@
-import styles from '../../styles/layout/Layout.module.scss'
 import Header from './Header'
 import Sidebar from './Sidebar'
+import styles from '../../styles/layout/Layout.module.scss'
 
 function Layout({ children }) {
   return (
-    <div>
+    <div className={styles.layout}>
       <Header />
 
-      <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <Sidebar />
-        </aside>
+      <div className={styles.body}>
+        <Sidebar />
 
         <main className={styles.content}>
           {children}

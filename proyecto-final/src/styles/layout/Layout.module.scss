@@ -1,22 +1,19 @@
 .layout {
   display: flex;
-  min-height: 100vh;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
 }
 
-.sidebar {
-  width: 240px;
-  background: var(--card-bg);
-  padding: 1rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .content {
   flex: 1;
-  padding: 2rem;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: var(--bg);
 }
