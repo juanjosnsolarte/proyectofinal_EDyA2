@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import styles from '../styles/pages/createPost.module.scss'
+import TextArea from '../components/Shared/TextArea'
+import Button from '../components/Shared/Button'
+import Card from '../components/Shared/Card'
 
 const POST_TYPES = [
   { value: 'duda', label: 'Duda' },
@@ -53,7 +56,7 @@ function CreatePost() {
       <div className={styles.container}>
         <h2 className={styles.title}>Crear nueva publicación</h2>
 
-        <section className={styles.card}>
+        <Card>
           <div className={styles.header}>
             <span className={styles.subtitle}>
               ¿Qué quieres compartir hoy, {user?.name || 'estudiante'}?
@@ -72,8 +75,7 @@ function CreatePost() {
             </select>
           </div>
 
-          <textarea
-            className={styles.textarea}
+          <TextArea
             placeholder={
               postType === 'duda'
                 ? 'Ej: No entiendo bien física, ¿alguien tiene tips para estudiar mejor?'
@@ -86,25 +88,24 @@ function CreatePost() {
           />
 
           <div className={styles.actions}>
-            <button
+            <Button
+              variant="outline"
               type="button"
-              className={styles.secondary}
               onClick={() => navigate('/feed')}
               disabled={isSaving}
             >
               Cancelar
-            </button>
+            </Button>
 
-            <button
-              className={styles.publishBtn}
+            <Button
               type="button"
               onClick={handlePublish}
               disabled={!content.trim() || isSaving}
             >
               {isSaving ? 'Publicando...' : 'Publicar'}
-            </button>
+            </Button>
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   )

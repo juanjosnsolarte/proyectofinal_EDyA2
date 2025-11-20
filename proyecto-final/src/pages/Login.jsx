@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import styles from '../styles/pages/login.module.scss'
 import { loginWithEmailPassword } from '../store/slices/auth/thunks'
+import Input from '../components/Shared/Input'
+import Button from '../components/Shared/Button'
 
 function Login() {
   const dispatch = useDispatch()
@@ -42,9 +44,8 @@ function Login() {
     return Object.keys(newErrors).length === 0
   }
 
-  const onSubmit = async (event) => {
+  const onSubmit = (event) => {
     event.preventDefault()
-
     if (!validateForm()) return
 
     dispatch(
@@ -64,15 +65,14 @@ function Login() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        <h2 className={styles.title}>Iniciar de Sesión</h2>
+        <h2 className={styles.title}>Iniciar sesión</h2>
 
         <form className={styles.form} onSubmit={onSubmit}>
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="email">Correo</label>
-            <input
+            <Input
               id="email"
               name="email"
-              className={styles.input}
               type="email"
               value={formState.email}
               onChange={onInputChange}
@@ -82,10 +82,9 @@ function Login() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="password">Contraseña</label>
-            <input
+            <Input
               id="password"
               name="password"
-              className={styles.input}
               type="password"
               value={formState.password}
               onChange={onInputChange}
@@ -94,13 +93,9 @@ function Login() {
           </div>
 
           <div className={styles.actions}>
-            <button
-              className={styles.button}
-              type="submit"
-              disabled={isChecking}
-            >
+            <Button type="submit" disabled={isChecking} fullWidth>
               {isChecking ? 'Ingresando...' : 'Iniciar sesión'}
-            </button>
+            </Button>
 
             <span className={styles.link}>
               ¿No tienes cuenta?{' '}

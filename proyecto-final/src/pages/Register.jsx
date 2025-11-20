@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import styles from '../styles/pages/register.module.scss'
 import { registerWithEmailPassword } from '../store/slices/auth/thunks'
+import Input from '../components/Shared/Input'
+import Button from '../components/Shared/Button'
 
-// Expresiones regulares
 const onlyLettersRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
 const onlyNumbersRegex = /^[0-9]+$/
 
@@ -47,15 +48,15 @@ function Register() {
     }
 
     if (formState.university.trim() && !onlyLettersRegex.test(formState.university.trim())) {
-      newErrors.university = 'Este campo solo puede contener letras.'
+      newErrors.university = 'La universidad solo puede contener letras.'
     }
 
     if (formState.career.trim() && !onlyLettersRegex.test(formState.career.trim())) {
-      newErrors.career = 'Este campo solo puede contener letras.'
+      newErrors.career = 'La carrera solo puede contener letras.'
     }
 
     if (formState.semester.trim() && !onlyNumbersRegex.test(formState.semester.trim())) {
-      newErrors.semester = 'Este campo debe ser un número.'
+      newErrors.semester = 'El semestre debe ser un número.'
     }
 
     if (!formState.age.trim() || !onlyNumbersRegex.test(formState.age.trim())) {
@@ -64,7 +65,6 @@ function Register() {
       newErrors.age = 'Debes tener al menos 16 años para registrarte.'
     }
 
-    // Email y password requeridos
     if (!formState.email.trim()) {
       newErrors.email = 'El correo es obligatorio.'
     }
@@ -107,11 +107,9 @@ function Register() {
         <form className={styles.form} onSubmit={onSubmit}>
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="name">Nombre completo</label>
-            <input
+            <Input
               id="name"
               name="name"
-              className={styles.input}
-              type="text"
               value={formState.name}
               onChange={onInputChange}
               required
@@ -121,10 +119,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="age">Edad</label>
-            <input
+            <Input
               id="age"
               name="age"
-              className={styles.input}
               type="number"
               value={formState.age}
               onChange={onInputChange}
@@ -135,11 +132,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="university">Universidad</label>
-            <input
+            <Input
               id="university"
               name="university"
-              className={styles.input}
-              type="text"
               value={formState.university}
               onChange={onInputChange}
             />
@@ -148,11 +143,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="career">Carrera</label>
-            <input
+            <Input
               id="career"
               name="career"
-              className={styles.input}
-              type="text"
               value={formState.career}
               onChange={onInputChange}
             />
@@ -161,11 +154,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="semester">Semestre</label>
-            <input
+            <Input
               id="semester"
               name="semester"
-              className={styles.input}
-              type="text"
               value={formState.semester}
               onChange={onInputChange}
             />
@@ -174,10 +165,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="email">Correo</label>
-            <input
+            <Input
               id="email"
               name="email"
-              className={styles.input}
               type="email"
               value={formState.email}
               onChange={onInputChange}
@@ -188,10 +178,9 @@ function Register() {
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="password">Contraseña</label>
-            <input
+            <Input
               id="password"
               name="password"
-              className={styles.input}
               type="password"
               value={formState.password}
               onChange={onInputChange}
@@ -201,13 +190,9 @@ function Register() {
           </div>
 
           <div className={styles.actions}>
-            <button
-              className={styles.button}
-              type="submit"
-              disabled={isChecking}
-            >
+            <Button type="submit" disabled={isChecking} fullWidth>
               {isChecking ? 'Creando cuenta...' : 'Registrarme'}
-            </button>
+            </Button>
 
             <span style={{ fontSize: '0.9rem' }}>
               ¿Ya tienes cuenta?{' '}

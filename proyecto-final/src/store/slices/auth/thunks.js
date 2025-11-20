@@ -6,7 +6,13 @@ import {
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../../../firebase/config'
-import { checkingCredentials, login, logout } from './authSlice'
+import {
+  checkingCredentials,
+  login,
+  logout,
+  startRegistering,
+  finishRegistering,
+} from './authSlice'
 
 const getAuthErrorMessage = (error) => {
   const code = error.code || ''
@@ -21,15 +27,14 @@ const getAuthErrorMessage = (error) => {
     case 'auth/user-not-found':
       return 'No existe una cuenta con este correo.'
     case 'auth/wrong-password':
-      return 'La contraseña es incorrecta.'
     case 'auth/invalid-credential':
       return 'Las credenciales han sido incorrectas.'
     default:
-      return 'Ocurrió un error al procesar la autenticación.'
+      return 'Las credenciales han sido incorrectas.'
   }
 }
 
-// Thunk para registrar usuario nuevo
+// REGISTRO
 export const registerWithEmailPassword = ({
   email,
   password,
@@ -40,6 +45,7 @@ export const registerWithEmailPassword = ({
   age,
 }) => {
   return async (dispatch) => {
+    dispatch(startRegistering())
     dispatch(checkingCredentials())
 
     try {
@@ -47,10 +53,10 @@ export const registerWithEmailPassword = ({
       const resp = await createUserWithEmailAndPassword(auth, email, password)
       const { uid } = resp.user
 
-      // Actualizar displayName
+      // 2. Actualizar displayName en el perfil de Auth
       await updateProfile(resp.user, { displayName: name })
 
-      // Guardar la información del usuario en Firestore
+      // 3. Guardar información del usuario en Firestore
       const userDocRef = doc(db, 'users', uid)
       await setDoc(userDocRef, {
         uid,
@@ -63,37 +69,43 @@ export const registerWithEmailPassword = ({
         createdAt: new Date().toISOString(),
       })
 
+      await signOut(auth)
+
       dispatch(logout(null))
+
+      dispatch(finishRegistering())
 
       return { ok: true }
     } catch (error) {
       console.error('Error en registerWithEmailPassword:', error)
-
       const message = getAuthErrorMessage(error)
+
       dispatch(logout(message))
+      dispatch(finishRegistering())
+
       return { ok: false, errorMessage: message }
     }
   }
 }
 
-// Thunk para login con email y password
+// LOGIN
 export const loginWithEmailPassword = ({ email, password }) => {
   return async (dispatch) => {
     dispatch(checkingCredentials())
 
     try {
-      // Login en Auth
+      // Login en Firebase Auth
       const resp = await signInWithEmailAndPassword(auth, email, password)
-      const { uid, displayName } = resp.user
+      const { uid, displayName, email: userEmail } = resp.user
 
-      // Leer datos extra del perfil en Firestore
+      // Leer datos del usuario en Firestore
       const userDocRef = doc(db, 'users', uid)
       const userSnap = await getDoc(userDocRef)
 
       let userData = {
         uid,
         name: displayName,
-        email,
+        email: userEmail,
       }
 
       if (userSnap.exists()) {
@@ -109,6 +121,7 @@ export const loginWithEmailPassword = ({ email, password }) => {
         }
       }
 
+      // Guardar al usuario en Redux
       dispatch(login(userData))
     } catch (error) {
       console.error('Error en loginWithEmailPassword:', error)
@@ -118,10 +131,10 @@ export const loginWithEmailPassword = ({ email, password }) => {
   }
 }
 
-// Thunk para logout
+// Cierre de Sesión
 export const logoutFirebase = () => {
   return async (dispatch) => {
     await signOut(auth)
-    dispatch(logout())
+    dispatch(logout(null))
   }
 }

@@ -1,22 +1,18 @@
-// src/pages/Profile.jsx
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import styles from '../styles/pages/profile.module.scss'
+import Button from '../components/Shared/Button'
+import Card from '../components/Shared/Card'
 
 function Profile() {
   const { id } = useParams()
   const { user } = useSelector(state => state.auth)
 
   const handleEditProfile = () => {
-    // Aquí más adelante abriremos un formulario/modal para editar
     console.log('Editar perfil - lógica pendiente')
   }
 
   const handleDeleteAccount = () => {
-    // Falta implementar la lógica de::
-    // - Eliminar usuario de Auth
-    // - Borrar documentos de Firestore: users, posts, relaciones, chats, etc.
-    // - Cerrar sesión y redirigir al login
     console.log('Eliminar cuenta - lógica pendiente')
   }
 
@@ -25,7 +21,7 @@ function Profile() {
       <div className={styles.container}>
         <h2 className={styles.title}>Mi Perfil</h2>
 
-        <section className={styles.card}>
+        <Card>
           <h3 className={styles.sectionTitle}>Información personal</h3>
 
           <ul className={styles.infoList}>
@@ -38,31 +34,23 @@ function Profile() {
           </ul>
 
           <div className={styles.buttonsRow}>
-            <button
-              type="button"
-              className={styles.editBtn}
-              onClick={handleEditProfile}
-            >
+            <Button variant="primary" type="button" onClick={handleEditProfile}>
               Editar perfil
-            </button>
+            </Button>
 
-            <button
-              type="button"
-              className={styles.deleteBtn}
-              onClick={handleDeleteAccount}
-            >
+            <Button variant="danger" type="button" onClick={handleDeleteAccount}>
               Eliminar cuenta
-            </button>
+            </Button>
           </div>
-        </section>
+        </Card>
 
-        <section className={styles.card}>
+        <Card>
           <h3 className={styles.sectionTitle}>Mis publicaciones</h3>
 
           <div className={styles.futureBlock}>
             (Pronto podrás ver tus publicaciones aquí)
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   )

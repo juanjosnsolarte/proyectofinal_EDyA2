@@ -1,0 +1,16 @@
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.7rem 0.8rem;
+  background: #050816;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}

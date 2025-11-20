@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  status: 'checking', // 'checking' | 'not-authenticated' | 'authenticated'
-  user: null,         
+  status: 'checking',           // 'checking' | 'not-authenticated' | 'authenticated'
+  user: null,
   errorMessage: null,
+  isRegistering: false,         
 }
 
 export const authSlice = createSlice({
@@ -27,6 +28,13 @@ export const authSlice = createSlice({
     clearErrorMessage: (state) => {
       state.errorMessage = null
     },
+
+    startRegistering: (state) => {
+      state.isRegistering = true
+    },
+    finishRegistering: (state) => {
+      state.isRegistering = false
+    },
   },
 })
 
@@ -35,6 +43,8 @@ export const {
   login,
   logout,
   clearErrorMessage,
+  startRegistering,
+  finishRegistering,
 } = authSlice.actions
 
 export default authSlice.reducer
