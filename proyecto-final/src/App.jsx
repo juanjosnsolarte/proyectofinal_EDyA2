@@ -4,7 +4,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import ThemeToggle from './components/Shared/ThemeToggle'
 import AuthObserver from './components/Auth/AuthObserver'
 import { AppRoutes } from './routes/AppRoutes'
-import { logoutFirebase } from './store/slices/auth/thunks'
+import { logoutFirebase } from './store/slices/auth/authThunks'
 
 function App() {
   const dispatch = useDispatch()

@@ -1,12 +1,8 @@
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '../firebase/config'
 import styles from '../styles/pages/createPost.module.scss'
-import TextArea from '../components/Shared/TextArea'
-import Button from '../components/Shared/Button'
-import Card from '../components/Shared/Card'
+import { createPost } from '../store/slices/posts/postThunks'
 
 const POST_TYPES = [
   { value: 'duda', label: 'Duda' },
@@ -15,37 +11,56 @@ const POST_TYPES = [
 ]
 
 function CreatePost() {
-  const { user } = useSelector(state => state.auth)
+  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const [postType, setPostType] = useState('duda')
+  const [postType, setPostType] = useState('apoyo')
   const [content, setContent] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState(null)
 
   const handlePublish = async (event) => {
     event.preventDefault()
+    setError(null)
+
     const trimmed = content.trim()
-    if (!trimmed || !user) return
+    if (!trimmed) {
+      setError('Escribe algo para publicar.')
+      return
+    }
+
+    if (!user) {
+      setError('Debes iniciar sesión para publicar.')
+      return
+    }
 
     try {
       setIsSaving(true)
 
-      await addDoc(collection(db, 'posts'), {
+      const postData = {
         tipo: postType,
         contenido: trimmed,
         usuarioId: user.uid,
         autorNombre: user.name,
         carrera: user.career,
         semestre: user.semester,
-        fecha: serverTimestamp(),
-      })
+      }
+
+      const { ok, errorMessage } = await dispatch(createPost(postData))
+
+      if (!ok) {
+        setError(errorMessage || 'No se pudo crear la publicación.')
+        return
+      }
 
       setContent('')
-      setPostType('duda')
+      setPostType('apoyo')
 
       navigate('/feed')
-    } catch (error) {
-      console.error('Error al crear la publicación:', error)
+    } catch (err) {
+      console.error(err)
+      setError('Ocurrió un error al crear la publicación.')
     } finally {
       setIsSaving(false)
     }
@@ -54,9 +69,9 @@ function CreatePost() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <h2 className={styles.title}>Crear nueva publicación</h2>
+        <h2 className={styles.title}>Crear publicación</h2>
 
-        <Card>
+        <section className={styles.card}>
           <div className={styles.header}>
             <span className={styles.subtitle}>
               ¿Qué quieres compartir hoy, {user?.name || 'estudiante'}?
@@ -75,37 +90,35 @@ function CreatePost() {
             </select>
           </div>
 
-          <TextArea
-            placeholder={
-              postType === 'duda'
-                ? 'Ej: No entiendo bien física, ¿alguien tiene tips para estudiar mejor?'
-                : postType === 'apoyo'
-                  ? 'Ej: Hola, para quienes estén viendo Ingeniería de Software, les recomiendo...'
-                  : 'Ej: Quiero contar mi experiencia en mi primer semestre...'
-            }
+          <textarea
+            className={styles.textarea}
+            placeholder="Ej: Quiero contar mi experiencia o pedir un consejo..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
 
+          {error && <p className={styles.error}>{error}</p>}
+
           <div className={styles.actions}>
-            <Button
-              variant="outline"
+            <button
               type="button"
+              className={styles.secondary}
               onClick={() => navigate('/feed')}
               disabled={isSaving}
             >
               Cancelar
-            </Button>
+            </button>
 
-            <Button
+            <button
+              className={styles.publishBtn}
               type="button"
               onClick={handlePublish}
               disabled={!content.trim() || isSaving}
             >
               {isSaving ? 'Publicando...' : 'Publicar'}
-            </Button>
+            </button>
           </div>
-        </Card>
+        </section>
       </div>
     </div>
   )

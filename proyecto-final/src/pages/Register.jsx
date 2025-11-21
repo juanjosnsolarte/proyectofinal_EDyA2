@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import styles from '../styles/pages/register.module.scss'
-import { registerWithEmailPassword } from '../store/slices/auth/thunks'
+import { registerWithEmailPassword } from '../store/slices/auth/authThunks'
 import Input from '../components/Shared/Input'
 import Button from '../components/Shared/Button'
 

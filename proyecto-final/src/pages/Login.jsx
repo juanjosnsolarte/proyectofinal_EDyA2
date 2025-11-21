@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import styles from '../styles/pages/login.module.scss'
-import { loginWithEmailPassword } from '../store/slices/auth/thunks'
+import { loginWithEmailPassword } from '../store/slices/auth/authThunks'
 import Input from '../components/Shared/Input'
 import Button from '../components/Shared/Button'
 
