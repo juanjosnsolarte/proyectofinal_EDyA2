@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+// src/pages/Feed.jsx
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import {
@@ -19,11 +20,11 @@ function Feed() {
 
   const postsStackRef = useRef(new Stack())
 
-  const getTypeLabel = (type) => {
+  const getTypeLabel = useCallback((type) => {
     if (type === 'duda') return 'Duda'
     if (type === 'apoyo') return 'Consejo / Apoyo'
     return 'Experiencia'
-  }
+  }, [])
 
   useEffect(() => {
     const loadPosts = async () => {
@@ -52,10 +53,7 @@ function Feed() {
           })
         })
 
-        console.log("PILA DE PUBLICACIONES (bottom -> top):")
-        stack.print()
-
-        setPosts(stack.toArrayFromTop())
+        setPosts(stack.toArrayFromTop()) 
       } catch (error) {
         console.error("Error cargando publicaciones:", error)
       } finally {
@@ -66,6 +64,13 @@ function Feed() {
     loadPosts()
   }, [])
 
+  const processedPosts = useMemo(() => {
+    return posts
+  }, [posts])
+
+  const handlePostClick = useCallback((post) => {
+    console.log("Post visitado:", post.authorName, post.type)
+  }, [])
 
   return (
     <div className={styles.page}>
@@ -79,22 +84,19 @@ function Feed() {
         </div>
 
         <section className={styles.postsList}>
-          {loading && (
-            <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              Cargando publicaciones...
+          {loading && <p style={{ textAlign: 'center' }}>Cargando...</p>}
+
+          {!loading && processedPosts.length === 0 && (
+            <p style={{ textAlign: 'center' }}>
+              Aún no hay publicaciones, {user?.name}.
             </p>
           )}
 
-          {!loading && posts.length === 0 && (
-            <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              Aún no hay publicaciones. Sé el primero en compartir algo, {user?.name}.
-            </p>
-          )}
-
-          {posts.map((post) => (
+          {processedPosts.map((post) => (
             <article
               key={post.id}
               className={styles.postCard}
+              onClick={() => handlePostClick(post)}
             >
               <div className={styles.postHeader}>
                 <div>
