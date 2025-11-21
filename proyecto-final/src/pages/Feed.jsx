@@ -1,4 +1,3 @@
-// src/pages/Feed.jsx
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -13,7 +12,7 @@ import styles from '../styles/pages/feed.module.scss'
 import Stack from '../utils/structures/Stack'
 
 function Feed() {
-  const { user } = useSelector(state => state.auth)
+  const { user } = useSelector((state) => state.auth)
 
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,7 +22,8 @@ function Feed() {
   const getTypeLabel = useCallback((type) => {
     if (type === 'duda') return 'Duda'
     if (type === 'apoyo') return 'Consejo / Apoyo'
-    return 'Experiencia'
+    if (type === 'experiencia') return 'Experiencia'
+    return type.toUpperCase()
   }, [])
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function Feed() {
       try {
         const q = query(
           collection(db, 'posts'),
-          orderBy('createdAt', 'asc')
+          orderBy('fecha', 'asc')
         )
 
         const snapshot = await getDocs(q)
@@ -42,20 +42,29 @@ function Feed() {
         snapshot.forEach((docSnap) => {
           const data = docSnap.data()
 
+          const autorNombre = data.autorNombre || 'Estudiante'
+          const carrera = data.carrera || ''
+          const semestre = data.semestre || ''
+          const tipo = data.tipo || 'experiencia'
+          const contenido = data.contenido || ''
+          const fecha = data.fecha || null
+          const usuarioId = data.idPublicacion || ''
+
           stack.push({
             id: docSnap.id,
-            authorName: data.authorName,
-            career: data.career,
-            semester: data.semester,
-            type: data.type,
-            text: data.text,
-            createdAt: data.createdAt,
+            autorNombre,
+            carrera,
+            semestre,
+            tipo,
+            contenido,
+            fecha,
+            usuarioId,
           })
         })
 
-        setPosts(stack.toArrayFromTop()) 
+        setPosts(stack.toArrayFromTop()) // LIFO
       } catch (error) {
-        console.error("Error cargando publicaciones:", error)
+        console.error('Error cargando publicaciones:', error)
       } finally {
         setLoading(false)
       }
@@ -64,12 +73,10 @@ function Feed() {
     loadPosts()
   }, [])
 
-  const processedPosts = useMemo(() => {
-    return posts
-  }, [posts])
+  const processedPosts = useMemo(() => posts, [posts])
 
   const handlePostClick = useCallback((post) => {
-    console.log("Post visitado:", post.authorName, post.type)
+    console.log('Post visitado:', post.id)
   }, [])
 
   return (
@@ -84,11 +91,13 @@ function Feed() {
         </div>
 
         <section className={styles.postsList}>
-          {loading && <p style={{ textAlign: 'center' }}>Cargando...</p>}
+          {loading && (
+            <p style={{ textAlign: 'center', opacity: 0.7 }}>Cargando publicaciones...</p>
+          )}
 
           {!loading && processedPosts.length === 0 && (
-            <p style={{ textAlign: 'center' }}>
-              Aún no hay publicaciones, {user?.name}.
+            <p style={{ textAlign: 'center', opacity: 0.7 }}>
+              No hay publicaciones aún, {user?.name}.
             </p>
           )}
 
@@ -100,22 +109,20 @@ function Feed() {
             >
               <div className={styles.postHeader}>
                 <div>
-                  <div className={styles.postAuthor}>
-                    {post.authorName}
-                  </div>
+                  <div className={styles.postAuthor}>{post.autorNombre}</div>
                   <div className={styles.postMeta}>
-                    {post.career && <span>{post.career}</span>}
-                    {post.career && post.semester && <span> · </span>}
-                    {post.semester && <span>Semestre {post.semester}</span>}
+                    {post.carrera && <span>{post.carrera}</span>}
+                    {post.carrera && post.semestre && <span> · </span>}
+                    {post.semestre && <span>Semestre {post.semestre}</span>}
                   </div>
                 </div>
 
-                <span className={`${styles.postType} ${styles[post.type]}`}>
-                  {getTypeLabel(post.type)}
+                <span className={`${styles.postType} ${styles[post.tipo]}`}>
+                  {getTypeLabel(post.tipo)}
                 </span>
               </div>
 
-              <p className={styles.postBody}>{post.text}</p>
+              <p className={styles.postBody}>{post.contenido}</p>
             </article>
           ))}
         </section>

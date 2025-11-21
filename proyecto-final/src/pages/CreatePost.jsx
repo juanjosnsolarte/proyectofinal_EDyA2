@@ -31,13 +31,13 @@ function CreatePost() {
       setIsSaving(true)
 
       await addDoc(collection(db, 'posts'), {
-        uid: user.uid,
-        authorName: user.name,
-        career: user.career,
-        semester: user.semester,
-        type: postType,
-        text: trimmed,
-        createdAt: serverTimestamp(),
+        tipo: postType,
+        contenido: trimmed,
+        usuarioId: user.uid,
+        autorNombre: user.name,
+        carrera: user.career,
+        semestre: user.semester,
+        fecha: serverTimestamp(),
       })
 
       setContent('')
