@@ -57,7 +57,8 @@ function Feed() {
 
           {!loading && !errorMessage && processedPosts.length === 0 && (
             <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              No hay publicaciones todavía{user?.name ? `, ${user.name}` : ''}.
+              No hay publicaciones todavía
+              {user?.name ? `, ${user.name}` : ''}.
             </p>
           )}
 
@@ -68,7 +69,31 @@ function Feed() {
               onClick={() => handlePostClick(post)}
             >
               <div className={styles.postHeader}>
-                <div>
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #a855f7, #6366f1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#fff',
+                    flexShrink: 0,
+                    marginRight: '0.75rem',
+                  }}
+                >
+                  {post.autorNombre
+                    ?.split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((w) => w[0].toUpperCase())
+                    .join('') || 'U'}
+                </div>
+
+                <div style={{ flex: 1 }}>
                   <div className={styles.postAuthor}>
                     {post.autorNombre || 'Estudiante'}
                   </div>

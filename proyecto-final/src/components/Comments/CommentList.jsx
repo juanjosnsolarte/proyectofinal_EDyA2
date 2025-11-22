@@ -2,6 +2,15 @@ import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchComments } from "../../store/slices/comments/commentThunks"
 
+const getInitials = (name = "") => {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join("")
+}
+
 function CommentList({ postId }) {
   const dispatch = useDispatch()
   const comments = useSelector(
@@ -10,31 +19,89 @@ function CommentList({ postId }) {
 
   useEffect(() => {
     dispatch(fetchComments(postId))
-  }, [postId])
+  }, [postId, dispatch])
+
+  if (!comments.length) {
+    return (
+      <p style={{ opacity: 0.6, fontSize: "0.85rem", marginBottom: "0.5rem" }}>
+        No hay comentarios aún.
+      </p>
+    )
+  }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-      {comments.length === 0 && (
-        <p style={{ opacity: 0.7 }}>No hay comentarios aún.</p>
-      )}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+        marginBottom: "0.5rem",
+      }}
+    >
+      {comments.map((c) => {
+        const initials = getInitials(c.autorNombre)
 
-      {comments.map((c) => (
-        <div
-          key={c.id}
-          style={{
-            background: "var(--bg-secondary)",
-            padding: "0.6rem",
-            borderRadius: "8px",
-            border: "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          <strong>{c.autorNombre}</strong>
-          <p style={{ margin: "0.2rem 0" }}>{c.contenido}</p>
-          <small style={{ opacity: 0.6 }}>
-            {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
-          </small>
-        </div>
-      ))}
+        return (
+          <div
+            key={c.id}
+            style={{
+              display: "flex",
+              gap: "0.6rem",
+              background: "var(--bg-secondary)",
+              padding: "0.55rem 0.7rem",
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.05)",
+            }}
+          >
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                background:
+                  "linear-gradient(135deg, #a855f7, #6366f1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                color: "#fff",
+                flexShrink: 0,
+              }}
+            >
+              {initials || "U"}
+            </div>
+
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  marginBottom: "0.15rem",
+                }}
+              >
+                {c.autorNombre || "Estudiante"}
+              </div>
+
+              <div style={{ fontSize: "0.9rem", lineHeight: 1.3 }}>
+                {c.contenido}
+              </div>
+
+              {c.fecha && (
+                <small
+                  style={{
+                    marginTop: "0.2rem",
+                    fontSize: "0.75rem",
+                    opacity: 0.55,
+                  }}
+                >
+                  {new Date(c.fecha).toLocaleString()}
+                </small>
+              )}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

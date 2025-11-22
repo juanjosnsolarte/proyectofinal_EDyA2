@@ -21,22 +21,26 @@ function AddComment({ postId }) {
     )
 
     setText("")
-    setShowBox(false) // ocultar después de enviar
+    setShowBox(false)
+  }
+
+  const handleToggle = () => {
+    setShowBox((prev) => !prev)
   }
 
   return (
-    <div style={{ marginTop: "0.5rem" }}>
+    <div style={{ marginTop: "0.75rem" }}>
       {!showBox && (
         <button
-          onClick={() => setShowBox(true)}
+          onClick={handleToggle}
           style={{
-            padding: "0.3rem 0.8rem",
-            borderRadius: "6px",
+            padding: "0.3rem 0.9rem",
+            borderRadius: "999px",
             border: "1px solid var(--primary)",
             background: "transparent",
             color: "var(--primary)",
             cursor: "pointer",
-            fontSize: "0.9rem"
+            fontSize: "0.9rem",
           }}
         >
           Responder
@@ -44,7 +48,15 @@ function AddComment({ postId }) {
       )}
 
       {showBox && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div
+          style={{
+            marginTop: "0.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+            animation: "fadeInCommentBox 0.18s ease-out",
+          }}
+        >
           <textarea
             placeholder="Responde la publicación..."
             value={text}
@@ -53,36 +65,42 @@ function AddComment({ postId }) {
               width: "100%",
               background: "var(--bg-secondary)",
               padding: "0.6rem",
-              borderRadius: "8px",
+              borderRadius: "10px",
               border: "1px solid rgba(255,255,255,0.1)",
               color: "var(--text-primary)",
+              fontSize: "0.9rem",
+              resize: "vertical",
+              minHeight: "60px",
             }}
           />
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
             <button
               onClick={handleSubmit}
               style={{
-                padding: "0.4rem 1rem",
-                borderRadius: "8px",
+                padding: "0.4rem 1.2rem",
+                borderRadius: "999px",
                 background: "var(--primary)",
                 color: "#fff",
                 cursor: "pointer",
                 border: "none",
+                fontSize: "0.9rem",
+                fontWeight: 500,
               }}
             >
               Enviar
             </button>
 
             <button
-              onClick={() => setShowBox(false)}
+              onClick={handleToggle}
               style={{
-                padding: "0.4rem 1rem",
-                borderRadius: "8px",
+                padding: "0.4rem 1.1rem",
+                borderRadius: "999px",
                 background: "transparent",
                 color: "var(--danger)",
                 border: "1px solid var(--danger)",
                 cursor: "pointer",
+                fontSize: "0.85rem",
               }}
             >
               Cancelar
