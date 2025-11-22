@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
+
 import { fetchPosts } from '../store/slices/posts/postThunks'
+import AddComment from '../components/Comments/AddComment'
+import CommentList from '../components/Comments/CommentList'
+
 import styles from '../styles/pages/feed.module.scss'
 
 function Feed() {
   const dispatch = useDispatch()
+
   const { user } = useSelector((state) => state.auth)
   const { posts, loading, errorMessage } = useSelector((state) => state.posts)
 
@@ -52,7 +57,7 @@ function Feed() {
 
           {!loading && !errorMessage && processedPosts.length === 0 && (
             <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              No hay publicaciones todavía, {user?.name}.
+              No hay publicaciones todavía{user?.name ? `, ${user.name}` : ''}.
             </p>
           )}
 
@@ -80,6 +85,11 @@ function Feed() {
               </div>
 
               <p className={styles.postBody}>{post.contenido}</p>
+
+              <div className={styles.commentsSection}>
+                <CommentList postId={post.id} />
+                <AddComment postId={post.id} />
+              </div>
             </article>
           ))}
         </section>
