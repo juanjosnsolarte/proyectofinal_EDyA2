@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useCallback } from 'react'
+import { useEffect, useMemo, useCallback, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-
 import { fetchPosts } from '../store/slices/posts/postThunks'
 import AddComment from '../components/Comments/AddComment'
 import CommentList from '../components/Comments/CommentList'
-
 import styles from '../styles/pages/feed.module.scss'
 
 function Feed() {
@@ -14,11 +12,19 @@ function Feed() {
   const { user } = useSelector((state) => state.auth)
   const { posts, loading, errorMessage } = useSelector((state) => state.posts)
 
+  const [filter, setFilter] = useState('all')
+
   useEffect(() => {
     dispatch(fetchPosts())
   }, [dispatch])
 
-  const processedPosts = useMemo(() => posts, [posts])
+  const filteredPosts = useMemo(() => {
+    if (!posts || posts.length === 0) return []
+
+    if (filter === 'all') return posts
+
+    return posts.filter((post) => post.tipo === filter)
+  }, [posts, filter])
 
   const getTypeLabel = useCallback((type) => {
     if (type === 'duda') return 'DUDA'
@@ -31,11 +37,50 @@ function Feed() {
     console.log('Post visitado:', post.id)
   }, [])
 
+  const filters = [
+    { id: 'all', label: 'Todas' },
+    { id: 'duda', label: 'Dudas' },
+    { id: 'apoyo', label: 'Consejos / Apoyos' },
+    { id: 'experiencia', label: 'Experiencias' },
+  ]
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <div className={styles.topBar}>
           <h2 className={styles.title}>Feed de Publicaciones</h2>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            {filters.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                style={{
+                  padding: '0.25rem 0.9rem',
+                  borderRadius: '999px',
+                  border:
+                    filter === f.id
+                      ? '1px solid transparent'
+                      : '1px solid rgba(255,255,255,0.2)',
+                  background:
+                    filter === f.id ? 'var(--primary)' : 'transparent',
+                  color: filter === f.id ? '#fff' : 'var(--text-primary)',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease-out',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
 
           <Link to="/create-post" className={styles.createButton}>
             Crear publicación
@@ -55,14 +100,14 @@ function Feed() {
             </p>
           )}
 
-          {!loading && !errorMessage && processedPosts.length === 0 && (
+          {!loading && !errorMessage && filteredPosts.length === 0 && (
             <p style={{ textAlign: 'center', opacity: 0.7 }}>
-              No hay publicaciones todavía
+              No hay publicaciones para este filtro
               {user?.name ? `, ${user.name}` : ''}.
             </p>
           )}
 
-          {processedPosts.map((post) => (
+          {filteredPosts.map((post) => (
             <article
               key={post.id}
               className={styles.postCard}
