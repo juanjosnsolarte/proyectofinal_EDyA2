@@ -4,6 +4,8 @@ import {
   getDocs,
   deleteDoc,
   collection,
+  query,
+  where,
 } from 'firebase/firestore'
 
 import { db } from '../../../firebase/config'
@@ -13,9 +15,13 @@ import {
   startLoadingFriends,
   setFriends,
   setFriendsError,
+  startLoadingRequests,
+  setFriendRequests,
+  setFriendRequestsError,
 } from './friendsSlice'
 
 import { FriendshipModel } from '../../../models/FriendshipModel'
+import { FriendRequestModel } from '../../../models/FriendRequestModel'
 
 export const createFriendship = (uid1, uid2) => {
   return async () => {
@@ -87,6 +93,112 @@ export const removeFriendship = (uid1, uid2) => {
     } catch (error) {
       console.error('Error eliminando amistad:', error)
       return { ok: false }
+    }
+  }
+}
+
+export const sendFriendRequest = (fromUid, toUid) => {
+  return async (dispatch) => {
+    try {
+      const requestId = `${fromUid}_${toUid}`
+
+      const newRequest = {
+        ...FriendRequestModel,
+        fromUid,
+        toUid,
+        createdAt: new Date().toISOString(),
+      }
+
+      await setDoc(doc(db, 'friendRequests', requestId), newRequest)
+
+      dispatch(fetchFriendRequests(fromUid))
+
+      return { ok: true }
+    } catch (error) {
+      console.error('Error enviando solicitud de amistad:', error)
+      return { ok: false, errorMessage: 'No se pudo enviar la solicitud.' }
+    }
+  }
+}
+
+export const fetchFriendRequests = (uid) => {
+  return async (dispatch) => {
+    dispatch(startLoadingRequests())
+
+    try {
+      const ref = collection(db, 'friendRequests')
+
+      const incomingQuery = query(ref, where('toUid', '==', uid))
+      const outgoingQuery = query(ref, where('fromUid', '==', uid))
+
+      const [incomingSnap, outgoingSnap] = await Promise.all([
+        getDocs(incomingQuery),
+        getDocs(outgoingQuery),
+      ])
+
+      const incoming = incomingSnap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }))
+
+      const outgoing = outgoingSnap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }))
+
+      dispatch(setFriendRequests({ incoming, outgoing }))
+    } catch (error) {
+      console.error('Error cargando solicitudes de amistad:', error)
+      dispatch(
+        setFriendRequestsError(
+          'No se pudieron cargar las solicitudes de amistad.'
+        )
+      )
+    }
+  }
+}
+
+export const acceptFriendRequest = (requestId, fromUid, toUid) => {
+  return async (dispatch) => {
+    try {
+      const uid1 = fromUid < toUid ? fromUid : toUid
+      const uid2 = fromUid < toUid ? toUid : fromUid
+      const friendshipId = `${uid1}_${uid2}`
+
+      const newFriendship = {
+        ...FriendshipModel,
+        uid1,
+        uid2,
+        createdAt: new Date().toISOString(),
+      }
+
+      await setDoc(doc(db, 'friendships', friendshipId), newFriendship)
+      await deleteDoc(doc(db, 'friendRequests', requestId))
+
+      dispatch(fetchFriends(fromUid))
+      dispatch(fetchFriends(toUid))
+      dispatch(fetchFriendRequests(fromUid))
+      dispatch(fetchFriendRequests(toUid))
+
+      return { ok: true }
+    } catch (error) {
+      console.error('Error aceptando solicitud de amistad:', error)
+      return { ok: false, errorMessage: 'No se pudo aceptar la solicitud.' }
+    }
+  }
+}
+
+export const rejectFriendRequest = (requestId, currentUid) => {
+  return async (dispatch) => {
+    try {
+      await deleteDoc(doc(db, 'friendRequests', requestId))
+
+      dispatch(fetchFriendRequests(currentUid))
+
+      return { ok: true }
+    } catch (error) {
+      console.error('Error rechazando solicitud de amistad:', error)
+      return { ok: false, errorMessage: 'No se pudo rechazar la solicitud.' }
     }
   }
 }

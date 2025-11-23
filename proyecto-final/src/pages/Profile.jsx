@@ -8,11 +8,15 @@ import Button from '../components/Shared/Button'
 import Card from '../components/Shared/Card'
 import {
   fetchFriends,
-  createFriendship,
   removeFriendship,
+  fetchFriendRequests,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
 } from '../store/slices/friends/friendsThunks'
 import { deleteCurrentUserAccount } from '../store/slices/auth/authThunks'
 import { selectPostsByUser } from '../store/selectors/postSelectors'
+import { fetchPosts } from '../store/slices/posts/postThunks' 
 
 function Profile() {
   const { id } = useParams()
@@ -20,13 +24,31 @@ function Profile() {
   const dispatch = useDispatch()
 
   const { user } = useSelector((state) => state.auth)
-  const { friendsByUser, loading: friendsLoading } = useSelector(
-    (state) => state.friends
+  const {
+    friendsByUser,
+    loading: friendsLoading,
+    requests,
+  } = useSelector((state) => state.friends)
+
+  const { posts, loading: postsLoading } = useSelector( 
+    (state) => state.posts
   )
 
   const [viewedUser, setViewedUser] = useState(null)
   const [loadingProfile, setLoadingProfile] = useState(true)
   const [profileError, setProfileError] = useState(null)
+
+  const requestsLoading = requests?.loading || false
+  const incomingRequests = requests?.incoming || []
+  const outgoingRequests = requests?.outgoing || []
+
+  useEffect(() => {
+    if (!user) return
+    if (postsLoading) return
+    if (posts && posts.length > 0) return
+
+    dispatch(fetchPosts())
+  }, [dispatch, user, postsLoading, posts.length])
 
   // Cargar info del perfil (propio u otro usuario)
   useEffect(() => {
@@ -86,9 +108,11 @@ function Profile() {
     }
   }, [id, user])
 
+  // Cargar amigos y solicitudes del usuario logueado
   useEffect(() => {
     if (user?.uid) {
       dispatch(fetchFriends(user.uid))
+      dispatch(fetchFriendRequests(user.uid))
     }
   }, [dispatch, user?.uid])
 
@@ -105,6 +129,22 @@ function Profile() {
     if (!user || !viewedUser || viewedUser.uid === user.uid) return false
     return myFriends.includes(viewedUser.uid)
   }, [user, viewedUser, myFriends])
+
+  const hasOutgoingRequest = useMemo(() => {
+    if (!user || !viewedUser) return false
+    return outgoingRequests.some(
+      (req) => req.toUid === viewedUser.uid && req.fromUid === user.uid
+    )
+  }, [user, viewedUser, outgoingRequests])
+
+  const incomingRequestFromViewedUser = useMemo(() => {
+    if (!user || !viewedUser) return null
+    return (
+      incomingRequests.find(
+        (req) => req.fromUid === viewedUser.uid && req.toUid === user.uid
+      ) || null
+    )
+  }, [user, viewedUser, incomingRequests])
 
   const viewedUserIdForPosts =
     viewedUser?.uid || (id === 'me' ? user?.uid : id)
@@ -151,20 +191,17 @@ function Profile() {
     }
   }, [dispatch, isOwnProfile, viewedUser])
 
-  const handleAddFriend = useCallback(
-    async () => {
-      if (!user || !viewedUser) return
+  const handleSendFriendRequest = useCallback(async () => {
+    if (!user || !viewedUser) return
 
-      const result = await dispatch(
-        createFriendship(user.uid, viewedUser.uid)
-      )
+    const result = await dispatch(
+      sendFriendRequest(user.uid, viewedUser.uid)
+    )
 
-      if (result?.ok) {
-        dispatch(fetchFriends(user.uid))
-      }
-    },
-    [dispatch, user, viewedUser]
-  )
+    if (!result?.ok && result?.errorMessage) {
+      alert(result.errorMessage)
+    }
+  }, [dispatch, user, viewedUser])
 
   const handleRemoveFriend = useCallback(
     async () => {
@@ -176,10 +213,39 @@ function Profile() {
 
       if (result?.ok) {
         dispatch(fetchFriends(user.uid))
+        dispatch(fetchFriendRequests(user.uid))
       }
     },
     [dispatch, user, viewedUser]
   )
+
+  const handleAcceptRequest = useCallback(async () => {
+    if (!user || !viewedUser || !incomingRequestFromViewedUser) return
+
+    const { id: requestId, fromUid, toUid } = incomingRequestFromViewedUser
+
+    const result = await dispatch(
+      acceptFriendRequest(requestId, fromUid, toUid)
+    )
+
+    if (!result?.ok && result?.errorMessage) {
+      alert(result.errorMessage)
+    }
+  }, [dispatch, user, viewedUser, incomingRequestFromViewedUser])
+
+  const handleRejectRequest = useCallback(async () => {
+    if (!user || !incomingRequestFromViewedUser) return
+
+    const { id: requestId } = incomingRequestFromViewedUser
+
+    const result = await dispatch(
+      rejectFriendRequest(requestId, user.uid)
+    )
+
+    if (!result?.ok && result?.errorMessage) {
+      alert(result.errorMessage)
+    }
+  }, [dispatch, user, incomingRequestFromViewedUser])
 
   const handleOpenChat = useCallback(() => {
     if (!user || !viewedUser) return
@@ -252,40 +318,82 @@ function Profile() {
 
               {!isOwnProfile && user && (
                 <div className={styles.actionsRow}>
-                  {friendsLoading && (
+                  {(friendsLoading || requestsLoading) && (
                     <span className={styles.smallText}>
                       Cargando estado de amistad...
                     </span>
                   )}
 
-                  {!friendsLoading && !isFriend && (
-                    <Button
-                      variant="primary"
-                      type="button"
-                      onClick={handleAddFriend}
-                    >
-                      Volverse Amigos
-                    </Button>
-                  )}
+                  {!friendsLoading &&
+                    !requestsLoading &&
+                    isFriend && (
+                      <>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          onClick={handleOpenChat}
+                        >
+                          Chatear
+                        </Button>
+                        <Button
+                          variant="danger"
+                          type="button"
+                          onClick={handleRemoveFriend}
+                        >
+                          Dejar de ser amigos
+                        </Button>
+                      </>
+                    )}
 
-                  {!friendsLoading && isFriend && (
-                    <>
+                  {!friendsLoading &&
+                    !requestsLoading &&
+                    !isFriend &&
+                    incomingRequestFromViewedUser && (
+                      <>
+                        <Button
+                          variant="primary"
+                          type="button"
+                          onClick={handleAcceptRequest}
+                        >
+                          Aceptar solicitud
+                        </Button>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          onClick={handleRejectRequest}
+                        >
+                          Rechazar
+                        </Button>
+                      </>
+                    )}
+
+                  {!friendsLoading &&
+                    !requestsLoading &&
+                    !isFriend &&
+                    !incomingRequestFromViewedUser &&
+                    hasOutgoingRequest && (
                       <Button
                         variant="outline"
                         type="button"
-                        onClick={handleOpenChat}
+                        disabled
                       >
-                        Chatear
+                        Solicitud enviada
                       </Button>
+                    )}
+
+                  {!friendsLoading &&
+                    !requestsLoading &&
+                    !isFriend &&
+                    !incomingRequestFromViewedUser &&
+                    !hasOutgoingRequest && (
                       <Button
-                        variant="danger"
+                        variant="primary"
                         type="button"
-                        onClick={handleRemoveFriend}
+                        onClick={handleSendFriendRequest}
                       >
-                        Dejar de ser amigos
+                        Volverse Amigos
                       </Button>
-                    </>
-                  )}
+                    )}
                 </div>
               )}
             </div>
@@ -339,39 +447,47 @@ function Profile() {
             {isOwnProfile ? 'Mis publicaciones' : 'Sus publicaciones'}
           </h3>
 
-          {postsCount === 0 ? (
+          {postsLoading && postsCount === 0 && ( 
+            <p className={styles.emptyPosts}>
+              Cargando publicaciones...
+            </p>
+          )}
+
+          {!postsLoading && postsCount === 0 ? (
             <p className={styles.emptyPosts}>
               {isOwnProfile
                 ? 'Aún no has publicado nada.'
                 : 'Este usuario aún no ha publicado nada.'}
             </p>
           ) : (
-            <div className={styles.postsGrid}>
-              {userPosts.map((post) => (
-                <article key={post.id} className={styles.postCard}>
-                  <div className={styles.postHeaderRow}>
-                    <span
-                      className={`${styles.postType} ${styles[post.tipo]}`}
-                    >
-                      {post.tipo === 'duda'
-                        ? 'DUDA'
-                        : post.tipo === 'apoyo'
-                        ? 'CONSEJO / APOYO'
-                        : post.tipo === 'experiencia'
-                        ? 'EXPERIENCIA'
-                        : 'PUBLICACIÓN'}
-                    </span>
-                    {post.fecha && (
-                      <span className={styles.postDate}>
-                        {new Date(post.fecha).toLocaleDateString()}
+            !postsLoading && (
+              <div className={styles.postsGrid}>
+                {userPosts.map((post) => (
+                  <article key={post.id} className={styles.postCard}>
+                    <div className={styles.postHeaderRow}>
+                      <span
+                        className={`${styles.postType} ${styles[post.tipo]}`}
+                      >
+                        {post.tipo === 'duda'
+                          ? 'DUDA'
+                          : post.tipo === 'apoyo'
+                          ? 'CONSEJO / APOYO'
+                          : post.tipo === 'experiencia'
+                          ? 'EXPERIENCIA'
+                          : 'PUBLICACIÓN'}
                       </span>
-                    )}
-                  </div>
+                      {post.fecha && (
+                        <span className={styles.postDate}>
+                          {new Date(post.fecha).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
 
-                  <p className={styles.postText}>{post.contenido}</p>
-                </article>
-              ))}
-            </div>
+                    <p className={styles.postText}>{post.contenido}</p>
+                  </article>
+                ))}
+              </div>
+            )
           )}
         </Card>
       </div>
