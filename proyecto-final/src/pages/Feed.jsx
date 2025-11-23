@@ -116,9 +116,44 @@ function Feed() {
                 .map((w) => w[0].toUpperCase())
                 .join('') || 'U'
 
-            const profileLink = post.usuarioId
-              ? `/profile/${post.usuarioId}`
-              : '#'
+            const isOwnPost = user && post.usuarioId === user.uid
+            const hasProfile = !!post.usuarioId && !isOwnPost
+            const profileLink = hasProfile ? `/profile/${post.usuarioId}` : null
+
+            const authorContent = (
+              <>
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #a855f7, #6366f1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#fff',
+                    flexShrink: 0,
+                  }}
+                >
+                  {initials}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <div className={styles.postAuthor}>
+                    {post.autorNombre || 'Estudiante'}
+                  </div>
+                  <div className={styles.postMeta}>
+                    {post.carrera && <span>{post.carrera}</span>}
+                    {post.carrera && post.semestre && <span> · </span>}
+                    {post.semestre && (
+                      <span>Semestre {post.semestre}</span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )
 
             return (
               <article
@@ -127,45 +162,18 @@ function Feed() {
                 onClick={() => handlePostClick(post)}
               >
                 <div className={styles.postHeader}>
-                  <Link
-                    to={profileLink}
-                    className={styles.authorLink}
-                    onClick={(e) => {
-                      if (!post.usuarioId) e.preventDefault()
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background:
-                          'linear-gradient(135deg, #a855f7, #6366f1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        color: '#fff',
-                        flexShrink: 0,
-                      }}
+                  {profileLink ? (
+                    <Link
+                      to={profileLink}
+                      className={styles.authorLink}
                     >
-                      {initials}
+                      {authorContent}
+                    </Link>
+                  ) : (
+                    <div className={styles.authorLink}>
+                      {authorContent}
                     </div>
-
-                    <div style={{ flex: 1 }}>
-                      <div className={styles.postAuthor}>
-                        {post.autorNombre || 'Estudiante'}
-                      </div>
-                      <div className={styles.postMeta}>
-                        {post.carrera && <span>{post.carrera}</span>}
-                        {post.carrera && post.semestre && <span> · </span>}
-                        {post.semestre && (
-                          <span>Semestre {post.semestre}</span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                  )}
 
                   <span
                     className={`${styles.postType} ${styles[post.tipo]}`}
