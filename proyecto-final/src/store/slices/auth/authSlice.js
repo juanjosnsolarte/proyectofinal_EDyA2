@@ -4,7 +4,7 @@ const initialState = {
   status: 'checking',           // 'checking' | 'not-authenticated' | 'authenticated'
   user: null,
   errorMessage: null,
-  isRegistering: false,         
+  isRegistering: false,
 }
 
 export const authSlice = createSlice({
@@ -35,6 +35,10 @@ export const authSlice = createSlice({
     finishRegistering: (state) => {
       state.isRegistering = false
     },
+
+    setAuthError: (state, { payload }) => {
+      state.errorMessage = payload
+    },
   },
 })
 
@@ -45,6 +49,7 @@ export const {
   clearErrorMessage,
   startRegistering,
   finishRegistering,
+  setAuthError,
 } = authSlice.actions
 
 export default authSlice.reducer

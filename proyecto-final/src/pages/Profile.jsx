@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useCallback, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import styles from '../styles/pages/profile.module.scss'
@@ -11,10 +11,12 @@ import {
   createFriendship,
   removeFriendship,
 } from '../store/slices/friends/friendsThunks'
+import { deleteCurrentUserAccount } from '../store/slices/auth/authThunks'
 import { selectPostsByUser } from '../store/selectors/postSelectors'
 
 function Profile() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   const { user } = useSelector((state) => state.auth)
@@ -126,42 +128,58 @@ function Profile() {
   )
 
   const handleEditProfile = useCallback(() => {
-    console.log('Editar perfil - lógica pendiente', {
-      uid: viewedUser?.uid,
-      isOwnProfile,
-    })
-  }, [viewedUser?.uid, isOwnProfile])
+    if (!isOwnProfile) return
+    navigate('/profile/edit')
+  }, [isOwnProfile, navigate])
 
-  const handleDeleteAccount = useCallback(() => {
-    console.log('Eliminar cuenta - lógica pendiente', {
-      uid: viewedUser?.uid,
-      email: viewedUser?.email,
-    })
-  }, [viewedUser?.uid, viewedUser?.email])
+  const handleDeleteAccount = useCallback(async () => {
+    if (!isOwnProfile || !viewedUser) return
 
-  const handleAddFriend = useCallback(async () => {
-    if (!user || !viewedUser) return
-
-    const result = await dispatch(
-      createFriendship(user.uid, viewedUser.uid)
+    const confirmFirst = window.confirm(
+      '¿Seguro que quieres eliminar tu cuenta?\n' +
+        'Esta acción NO se puede deshacer.'
     )
 
-    if (result?.ok) {
-      dispatch(fetchFriends(user.uid))
-    }
-  }, [dispatch, user, viewedUser])
+    if (!confirmFirst) return
 
-  const handleRemoveFriend = useCallback(async () => {
-    if (!user || !viewedUser) return
-
-    const result = await dispatch(
-      removeFriendship(user.uid, viewedUser.uid)
-    )
+    const result = await dispatch(deleteCurrentUserAccount())
 
     if (result?.ok) {
-      dispatch(fetchFriends(user.uid))
+      alert('Tu cuenta ha sido eliminada correctamente.')
+    } else if (result?.errorMessage) {
+      alert(result.errorMessage)
     }
-  }, [dispatch, user, viewedUser])
+  }, [dispatch, isOwnProfile, viewedUser])
+
+  const handleAddFriend = useCallback(
+    async () => {
+      if (!user || !viewedUser) return
+
+      const result = await dispatch(
+        createFriendship(user.uid, viewedUser.uid)
+      )
+
+      if (result?.ok) {
+        dispatch(fetchFriends(user.uid))
+      }
+    },
+    [dispatch, user, viewedUser]
+  )
+
+  const handleRemoveFriend = useCallback(
+    async () => {
+      if (!user || !viewedUser) return
+
+      const result = await dispatch(
+        removeFriendship(user.uid, viewedUser.uid)
+      )
+
+      if (result?.ok) {
+        dispatch(fetchFriends(user.uid))
+      }
+    },
+    [dispatch, user, viewedUser]
+  )
 
   const handleOpenChat = useCallback(() => {
     if (!user || !viewedUser) return
@@ -318,9 +336,7 @@ function Profile() {
 
         <Card>
           <h3 className={styles.sectionTitle}>
-            {isOwnProfile
-              ? 'Mis publicaciones'
-              : 'Sus publicaciones'}
+            {isOwnProfile ? 'Mis publicaciones' : 'Sus publicaciones'}
           </h3>
 
           {postsCount === 0 ? (
