@@ -38,3 +38,17 @@ body {
   color: var(--text);
   font-family: 'Inter', sans-serif;
 }
+
+.commentAuthorLink {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.commentAuthorLink:hover {
+  color: var(--primary); 
+}
+
+.commentAuthorText {
+  color: var(--text);
+}

@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { Link } from "react-router-dom"
 import { fetchComments } from "../../store/slices/comments/commentThunks"
+import { selectCommentsByPost } from "../../store/selectors/commentSelectors"
 
 const getInitials = (name = "") => {
   return name
@@ -13,9 +15,9 @@ const getInitials = (name = "") => {
 
 function CommentList({ postId }) {
   const dispatch = useDispatch()
-  const comments = useSelector(
-    (state) => state.comments.commentsByPost[postId] || []
-  )
+
+  const comments = useSelector(selectCommentsByPost(postId))
+  const { user } = useSelector((state) => state.auth)
 
   useEffect(() => {
     dispatch(fetchComments(postId))
@@ -40,6 +42,19 @@ function CommentList({ postId }) {
     >
       {comments.map((c) => {
         const initials = getInitials(c.autorNombre)
+        const isOwnComment = user && c.usuarioId === user.uid
+        const hasProfile = !!c.usuarioId && !isOwnComment
+        const profileLink = hasProfile ? `/profile/${c.usuarioId}` : null
+
+        const authorNode = profileLink ? (
+          <Link to={profileLink} className="commentAuthorLink">
+            {c.autorNombre || "Estudiante"}
+          </Link>
+        ) : (
+          <span className="commentAuthorText">
+            {c.autorNombre || "Estudiante"}
+          </span>
+        )
 
         return (
           <div
@@ -58,8 +73,7 @@ function CommentList({ postId }) {
                 width: "32px",
                 height: "32px",
                 borderRadius: "50%",
-                background:
-                  "linear-gradient(135deg, #a855f7, #6366f1)",
+                background: "linear-gradient(135deg, #a855f7, #6366f1)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -80,7 +94,7 @@ function CommentList({ postId }) {
                   marginBottom: "0.15rem",
                 }}
               >
-                {c.autorNombre || "Estudiante"}
+                {authorNode}
               </div>
 
               <div style={{ fontSize: "0.9rem", lineHeight: 1.3 }}>

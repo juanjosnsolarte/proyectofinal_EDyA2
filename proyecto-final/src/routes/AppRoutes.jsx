@@ -1,10 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
+
 import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Feed from '../pages/Feed'
 import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
 import CreatePost from '../pages/CreatePost'
+import Friends from '../pages/Friends'
 import Layout from '../components/Layout/Layout'
 import PrivateRoute from './guards/PrivateRoute'
 import PublicRoute from './guards/PublicRoute'
@@ -12,7 +14,8 @@ import PublicRoute from './guards/PublicRoute'
 export const AppRoutes = () => {
   return (
     <Routes>
-      {/* RUTAS PÚBLICAS */}
+
+      {/* Rutas Publicas */}
       <Route
         path="/"
         element={
@@ -40,13 +43,26 @@ export const AppRoutes = () => {
         }
       />
 
-      {/* RUTAS PRIVADAS */}
+
+      {/* Rutas Privadas */}
+      
       <Route
         path="/feed"
         element={
           <PrivateRoute>
             <Layout>
               <Feed />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/friends"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Friends />
             </Layout>
           </PrivateRoute>
         }
@@ -73,9 +89,10 @@ export const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-      
+
       {/* Error 404 - Página no encontrada */}
       <Route path="*" element={<NotFound />} />
+
     </Routes>
   )
 }

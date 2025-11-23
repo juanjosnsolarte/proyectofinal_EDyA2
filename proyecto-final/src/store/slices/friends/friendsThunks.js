@@ -20,7 +20,6 @@ import { FriendshipModel } from '../../../models/FriendshipModel'
 export const createFriendship = (uid1, uid2) => {
   return async () => {
     try {
-      // ID ÚNICO para evitar duplicados
       const friendshipId =
         uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`
 
@@ -47,27 +46,34 @@ export const fetchFriends = (uid) => {
 
     try {
       const graph = new Graph()
+      const userIds = new Set()
 
       const ref = collection(db, 'friendships')
       const snapshot = await getDocs(ref)
 
-      snapshot.forEach(docSnap => {
+      snapshot.forEach((docSnap) => {
         const data = docSnap.data()
         if (data.uid1 && data.uid2) {
           graph.addEdge(data.uid1, data.uid2)
+          userIds.add(data.uid1)
+          userIds.add(data.uid2)
         }
       })
 
-      const friends = graph.getFriends(uid)
+      userIds.forEach((userId) => {
+        const friendsOfUser = graph.getFriends(userId)
+        dispatch(setFriends({ uid: userId, friends: friendsOfUser }))
+      })
 
-      dispatch(setFriends({ uid, friends }))
+      if (uid && !userIds.has(uid)) {
+        dispatch(setFriends({ uid, friends: [] }))
+      }
     } catch (error) {
       console.error('Error cargando amigos:', error)
       dispatch(setFriendsError('No se pudieron cargar los amigos.'))
     }
   }
 }
-
 
 export const removeFriendship = (uid1, uid2) => {
   return async () => {

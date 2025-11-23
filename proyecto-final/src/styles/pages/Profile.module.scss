@@ -8,91 +8,205 @@
 
 .container {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-.title {
-  font-size: 2rem;
-  text-align: center;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.card {
-  background: var(--card-bg);
+.header {
+  display: flex;
+  gap: 1.5rem;
   padding: 1.5rem;
+  background: var(--card-bg);
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar span {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.headerMain {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
+.username {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.smallText {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.statsRow {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statNumber {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.bioRow {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.bioLine {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
 .sectionTitle {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--primary);
+  margin-bottom: 0.75rem;
 }
 
 .infoList {
   list-style: none;
   padding-left: 0;
-
-  li {
-    margin: 0.4rem 0;
-    font-size: 0.95rem;
-
-    strong {
-      color: var(--primary);
-    }
-  }
+  font-size: 0.95rem;
 }
 
-.buttonsRow {
-  margin-top: 0.5rem;
-  display: flex;
+.infoList li {
+  margin: 0.3rem 0;
+}
+
+.infoList strong {
+  color: var(--primary);
+}
+
+.postsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
-.editBtn {
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  border: none;
-  background: var(--primary);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
+.postCard {
+  background: #020617;
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.postHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.postType {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.postType.duda {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.postType.apoyo {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.postType.experiencia {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+}
+
+.postDate {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+.postText {
   font-size: 0.9rem;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: var(--primary-dark);
-  }
+  line-height: 1.4;
 }
 
-.deleteBtn {
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  border: 1px solid #f87171;
-  background: transparent;
-  color: #f87171;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: background 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background: #f87171;
-    color: #111827;
-  }
+.emptyPosts {
+  opacity: 0.8;
+  font-size: 0.95rem;
 }
 
-.futureBlock {
-  opacity: 0.7;
-  text-align: center;
-  padding: 1rem 0;
+/* Responsivo */
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .headerMain {
+    align-items: center;
+  }
+
+  .statsRow {
+    justify-content: center;
+  }
+
+  .topRow {
+    flex-direction: column;
+  }
+
+  .actionsRow {
+    justify-content: center;
+  }
 }

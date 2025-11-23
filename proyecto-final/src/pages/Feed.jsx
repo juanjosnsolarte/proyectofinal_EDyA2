@@ -107,61 +107,82 @@ function Feed() {
             </p>
           )}
 
-          {filteredPosts.map((post) => (
-            <article
-              key={post.id}
-              className={styles.postCard}
-              onClick={() => handlePostClick(post)}
-            >
-              <div className={styles.postHeader}>
-                <div
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#fff',
-                    flexShrink: 0,
-                    marginRight: '0.75rem',
-                  }}
-                >
-                  {post.autorNombre
-                    ?.split(' ')
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((w) => w[0].toUpperCase())
-                    .join('') || 'U'}
+          {filteredPosts.map((post) => {
+            const initials =
+              post.autorNombre
+                ?.split(' ')
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0].toUpperCase())
+                .join('') || 'U'
+
+            const profileLink = post.usuarioId
+              ? `/profile/${post.usuarioId}`
+              : '#'
+
+            return (
+              <article
+                key={post.id}
+                className={styles.postCard}
+                onClick={() => handlePostClick(post)}
+              >
+                <div className={styles.postHeader}>
+                  <Link
+                    to={profileLink}
+                    className={styles.authorLink}
+                    onClick={(e) => {
+                      if (!post.usuarioId) e.preventDefault()
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background:
+                          'linear-gradient(135deg, #a855f7, #6366f1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        color: '#fff',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {initials}
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                      <div className={styles.postAuthor}>
+                        {post.autorNombre || 'Estudiante'}
+                      </div>
+                      <div className={styles.postMeta}>
+                        {post.carrera && <span>{post.carrera}</span>}
+                        {post.carrera && post.semestre && <span> · </span>}
+                        {post.semestre && (
+                          <span>Semestre {post.semestre}</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+
+                  <span
+                    className={`${styles.postType} ${styles[post.tipo]}`}
+                  >
+                    {getTypeLabel(post.tipo)}
+                  </span>
                 </div>
 
-                <div style={{ flex: 1 }}>
-                  <div className={styles.postAuthor}>
-                    {post.autorNombre || 'Estudiante'}
-                  </div>
-                  <div className={styles.postMeta}>
-                    {post.carrera && <span>{post.carrera}</span>}
-                    {post.carrera && post.semestre && <span> · </span>}
-                    {post.semestre && <span>Semestre {post.semestre}</span>}
-                  </div>
+                <p className={styles.postBody}>{post.contenido}</p>
+
+                <div className={styles.commentsSection}>
+                  <CommentList postId={post.id} />
+                  <AddComment postId={post.id} />
                 </div>
-
-                <span className={`${styles.postType} ${styles[post.tipo]}`}>
-                  {getTypeLabel(post.tipo)}
-                </span>
-              </div>
-
-              <p className={styles.postBody}>{post.contenido}</p>
-
-              <div className={styles.commentsSection}>
-                <CommentList postId={post.id} />
-                <AddComment postId={post.id} />
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </section>
       </div>
     </div>

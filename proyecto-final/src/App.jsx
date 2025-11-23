@@ -16,7 +16,8 @@ function App() {
 
   const isPrivateRoute =
     location.pathname.startsWith('/feed') ||
-    location.pathname.startsWith('/profile')
+    location.pathname.startsWith('/profile') ||
+    location.pathname.startsWith('/friends') 
 
   return (
     <ThemeProvider>
