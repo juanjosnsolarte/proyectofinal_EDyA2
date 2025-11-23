@@ -264,7 +264,7 @@ function Profile() {
                       type="button"
                       onClick={handleAddFriend}
                     >
-                      Seguir
+                      Volverse Amigos
                     </Button>
                   )}
 
@@ -282,7 +282,7 @@ function Profile() {
                         type="button"
                         onClick={handleRemoveFriend}
                       >
-                        Dejar de seguir
+                        Dejar de ser amigos
                       </Button>
                     </>
                   )}
