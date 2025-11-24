@@ -16,7 +16,7 @@ function buildMenuTree(user) {
   const miPerfil = new TreeNode('Mi Perfil', profilePath)
 
   const amigos = new TreeNode('Mis Amigos', '/friends')
-  const chat = new TreeNode('Mis Chat', '/chat')
+  const chat = new TreeNode('Mis Chats', '/chats/:chatId?')
 
   root.addChild(inicio)
   root.addChild(miPerfil)

@@ -23,6 +23,38 @@ import {
 import { FriendshipModel } from '../../../models/FriendshipModel'
 import { FriendRequestModel } from '../../../models/FriendRequestModel'
 
+const deleteChatsBetweenUsers = async (uid1, uid2) => {
+  if (!uid1 || !uid2) return
+
+  const chatsQ = query(
+    collection(db, 'chats'),
+    where('participants', 'array-contains', uid1)
+  )
+
+  const chatsSnap = await getDocs(chatsQ)
+
+  for (const chatDoc of chatsSnap.docs) {
+    const data = chatDoc.data()
+    const participants = data.participants || []
+
+    if (participants.includes(uid1) && participants.includes(uid2)) {
+      const chatId = chatDoc.id
+
+      const msgsQ = query(
+        collection(db, 'messages'),
+        where('chatId', '==', chatId)
+      )
+      const msgsSnap = await getDocs(msgsQ)
+
+      for (const msgDoc of msgsSnap.docs) {
+        await deleteDoc(msgDoc.ref)
+      }
+
+      await deleteDoc(chatDoc.ref)
+    }
+  }
+}
+
 export const createFriendship = (uid1, uid2) => {
   return async () => {
     try {
@@ -89,6 +121,8 @@ export const removeFriendship = (uid1, uid2) => {
 
       await deleteDoc(doc(db, 'friendships', friendshipId))
 
+      await deleteChatsBetweenUsers(uid1, uid2)
+
       return { ok: true }
     } catch (error) {
       console.error('Error eliminando amistad:', error)
@@ -116,7 +150,10 @@ export const sendFriendRequest = (fromUid, toUid) => {
       return { ok: true }
     } catch (error) {
       console.error('Error enviando solicitud de amistad:', error)
-      return { ok: false, errorMessage: 'No se pudo enviar la solicitud.' }
+      return {
+        ok: false,
+        errorMessage: 'No se pudo enviar la solicitud.',
+      }
     }
   }
 }
@@ -183,7 +220,10 @@ export const acceptFriendRequest = (requestId, fromUid, toUid) => {
       return { ok: true }
     } catch (error) {
       console.error('Error aceptando solicitud de amistad:', error)
-      return { ok: false, errorMessage: 'No se pudo aceptar la solicitud.' }
+      return {
+        ok: false,
+        errorMessage: 'No se pudo aceptar la solicitud.',
+      }
     }
   }
 }
@@ -198,7 +238,10 @@ export const rejectFriendRequest = (requestId, currentUid) => {
       return { ok: true }
     } catch (error) {
       console.error('Error rechazando solicitud de amistad:', error)
-      return { ok: false, errorMessage: 'No se pudo rechazar la solicitud.' }
+      return {
+        ok: false,
+        errorMessage: 'No se pudo rechazar la solicitud.',
+      }
     }
   }
 }

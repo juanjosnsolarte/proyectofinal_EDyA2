@@ -16,7 +16,11 @@ import {
 } from '../store/slices/friends/friendsThunks'
 import { deleteCurrentUserAccount } from '../store/slices/auth/authThunks'
 import { selectPostsByUser } from '../store/selectors/postSelectors'
-import { fetchPosts } from '../store/slices/posts/postThunks' 
+import { fetchPosts } from '../store/slices/posts/postThunks'
+import {
+  ensureChat,
+  fetchUserChats,
+} from '../store/slices/chat/chatThunks'
 
 function Profile() {
   const { id } = useParams()
@@ -30,7 +34,7 @@ function Profile() {
     requests,
   } = useSelector((state) => state.friends)
 
-  const { posts, loading: postsLoading } = useSelector( 
+  const { posts, loading: postsLoading } = useSelector(
     (state) => state.posts
   )
 
@@ -77,7 +81,7 @@ function Profile() {
           const snap = await getDoc(ref)
 
           if (snap.exists()) {
-            targetUser = snap.data()
+            targetUser = { uid: id, ...snap.data() }
           } else {
             targetUser = null
             if (isMounted) {
@@ -214,6 +218,7 @@ function Profile() {
       if (result?.ok) {
         dispatch(fetchFriends(user.uid))
         dispatch(fetchFriendRequests(user.uid))
+        dispatch(fetchUserChats(user.uid))
       }
     },
     [dispatch, user, viewedUser]
@@ -247,14 +252,19 @@ function Profile() {
     }
   }, [dispatch, user, incomingRequestFromViewedUser])
 
-  const handleOpenChat = useCallback(() => {
+  const handleOpenChat = useCallback(async () => {
     if (!user || !viewedUser) return
 
-    console.log('Abrir chat entre usuarios:', {
-      from: user.uid,
-      to: viewedUser.uid,
-    })
-  }, [user, viewedUser])
+    const result = await dispatch(
+      ensureChat(user.uid, viewedUser.uid)
+    )
+
+    if (result?.ok && result.chatId) {
+      navigate(`/chats/${result.chatId}`)
+    } else if (result?.errorMessage) {
+      alert(result.errorMessage)
+    }
+  }, [dispatch, navigate, user, viewedUser])
 
   // Render principal
   if (loadingProfile) {
@@ -447,7 +457,7 @@ function Profile() {
             {isOwnProfile ? 'Mis publicaciones' : 'Sus publicaciones'}
           </h3>
 
-          {postsLoading && postsCount === 0 && ( 
+          {postsLoading && postsCount === 0 && (
             <p className={styles.emptyPosts}>
               Cargando publicaciones...
             </p>

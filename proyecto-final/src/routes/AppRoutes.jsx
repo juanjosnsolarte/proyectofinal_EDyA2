@@ -7,6 +7,7 @@ import NotFound from '../pages/NotFound'
 import CreatePost from '../pages/CreatePost'
 import Friends from '../pages/Friends'
 import EditProfile from '../pages/EditProfile'
+import Chats from '../pages/Chats'
 import Layout from '../components/Layout/Layout'
 import PrivateRoute from './guards/PrivateRoute'
 import PublicRoute from './guards/PublicRoute'
@@ -14,7 +15,6 @@ import PublicRoute from './guards/PublicRoute'
 export const AppRoutes = () => {
   return (
     <Routes>
-
       {/* Rutas Publicas */}
       <Route
         path="/"
@@ -43,9 +43,7 @@ export const AppRoutes = () => {
         }
       />
 
-
       {/* Rutas Privadas */}
-      
       <Route
         path="/feed"
         element={
@@ -101,9 +99,19 @@ export const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/chats/:chatId?"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Chats />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
       {/* Error 404 - Página no encontrada */}
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   )
 }
