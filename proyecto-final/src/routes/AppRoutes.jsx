@@ -3,15 +3,115 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Feed from '../pages/Feed'
 import Profile from '../pages/Profile'
+import NotFound from '../pages/NotFound'
+import CreatePost from '../pages/CreatePost'
+import Friends from '../pages/Friends'
+import EditProfile from '../pages/EditProfile'
+import Chats from '../pages/Chats'
+import Layout from '../components/Layout/Layout'
+import PrivateRoute from './guards/PrivateRoute'
+import PublicRoute from './guards/PublicRoute'
 
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/feed" element={<Feed />} />
-      <Route path="/profile/:id" element={<Profile />} />
+      {/* Rutas Publicas */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
+
+      {/* Rutas Privadas */}
+      <Route
+        path="/feed"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Feed />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/profile/edit"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <EditProfile />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/friends"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Friends />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/profile/:id"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Profile />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/create-post"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <CreatePost />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/chats/:chatId?"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Chats />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+
+      {/* Error 404 - Página no encontrada */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

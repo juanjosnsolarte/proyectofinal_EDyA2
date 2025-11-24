@@ -1,0 +1,175 @@
+.page {
+  min-height: calc(100vh - 56px);
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--primary);
+}
+
+.message {
+  text-align: center;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+.error {
+  text-align: center;
+  color: #f87171;
+  font-size: 0.95rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionSubtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.list {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.friendName {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.friendMeta {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.profileLink {
+  font-size: 0.9rem;
+  color: var(--primary);
+  text-decoration: none;
+  border: 1px solid var(--primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.profileLink:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.requestsList {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.requestItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.requestText {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.requestActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.acceptBtn,
+.rejectBtn {
+  font-size: 0.8rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: transparent;
+}
+
+.acceptBtn {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.acceptBtn:hover {
+  background: #22c55e;
+  color: #020617;
+}
+
+.rejectBtn {
+  border-color: #f97373;
+  color: #f97373;
+}
+
+.rejectBtn:hover {
+  background: #f97373;
+  color: #020617;
+}

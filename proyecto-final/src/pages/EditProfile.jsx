@@ -1,19 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import styles from '../styles/pages/Register.module.scss'
-import { registerWithEmailPassword } from '../store/slices/auth/authThunks'
 import Input from '../components/Shared/Input'
 import Button from '../components/Shared/Button'
+import { updateProfileData } from '../store/slices/auth/authThunks'
 
 const onlyLettersRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
 const onlyNumbersRegex = /^[0-9]+$/
 
-function Register() {
+function EditProfile() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const { status, errorMessage } = useSelector(state => state.auth)
+  const { user, status } = useSelector((state) => state.auth)
   const isChecking = status === 'checking'
 
   const [formState, setFormState] = useState({
@@ -22,22 +22,40 @@ function Register() {
     university: '',
     career: '',
     semester: '',
-    email: '',
-    password: '',
   })
 
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [generalError, setGeneralError] = useState(null)
+
+  useEffect(() => {
+    if (!user && !isChecking) {
+      navigate('/login')
+      return
+    }
+
+    if (user) {
+      setFormState({
+        name: user.name || '',
+        age: user.age || '',
+        university: user.university || '',
+        career: user.career || '',
+        semester: user.semester || '',
+      })
+    }
+  }, [user, isChecking, navigate])
 
   const onInputChange = (event) => {
     const { name, value } = event.target
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       [name]: value,
     }))
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
       [name]: null,
     }))
+    setGeneralError(null)
   }
 
   const validateForm = () => {
@@ -47,29 +65,31 @@ function Register() {
       newErrors.name = 'El nombre solo puede contener letras.'
     }
 
-    if (formState.university.trim() && !onlyLettersRegex.test(formState.university.trim())) {
+    if (
+      formState.university.trim() &&
+      !onlyLettersRegex.test(formState.university.trim())
+    ) {
       newErrors.university = 'La universidad solo puede contener letras.'
     }
 
-    if (formState.career.trim() && !onlyLettersRegex.test(formState.career.trim())) {
+    if (
+      formState.career.trim() &&
+      !onlyLettersRegex.test(formState.career.trim())
+    ) {
       newErrors.career = 'La carrera solo puede contener letras.'
     }
 
-    if (formState.semester.trim() && !onlyNumbersRegex.test(formState.semester.trim())) {
+    if (
+      formState.semester.trim() &&
+      !onlyNumbersRegex.test(formState.semester.trim())
+    ) {
       newErrors.semester = 'El semestre debe ser un número.'
     }
 
     if (!formState.age.trim() || !onlyNumbersRegex.test(formState.age.trim())) {
       newErrors.age = 'La edad debe ser un número.'
     } else if (parseInt(formState.age, 10) < 16) {
-      newErrors.age = 'Debes tener al menos 16 años para registrarte.'
-    }
-
-    if (!formState.email.trim()) {
-      newErrors.email = 'El correo es obligatorio.'
-    }
-    if (!formState.password.trim()) {
-      newErrors.password = 'La contraseña es obligatoria.'
+      newErrors.age = 'Debes tener al menos 16 años.'
     }
 
     setErrors(newErrors)
@@ -78,35 +98,55 @@ function Register() {
 
   const onSubmit = async (event) => {
     event.preventDefault()
+    setGeneralError(null)
 
-    const isValid = validateForm()
-    if (!isValid) return
+    if (!validateForm()) return
 
+    setSaving(true)
     const result = await dispatch(
-      registerWithEmailPassword({
-        email: formState.email,
-        password: formState.password,
-        name: formState.name,
-        career: formState.career,
-        semester: formState.semester,
-        university: formState.university,
-        age: formState.age,
+      updateProfileData({
+        name: formState.name.trim(),
+        age: formState.age.trim(),
+        university: formState.university.trim(),
+        career: formState.career.trim(),
+        semester: formState.semester.trim(),
       })
     )
+    setSaving(false)
 
-    if (result && result.ok) {
-      navigate('/login')
+    if (!result || !result.ok) {
+      setGeneralError(result?.errorMessage || 'No se pudo actualizar el perfil.')
+      return
     }
+
+    // Volver a mi perfil con los datos ya actualizados
+    navigate('/profile/me')
+  }
+
+  const handleCancel = () => {
+    navigate('/profile/me')
+  }
+
+  if (isChecking && !user) {
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.container}>
+          <p>Cargando...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        <h2 className={styles.title}>Registro de Cuenta</h2>
+        <h2 className={styles.title}>Editar perfil</h2>
 
         <form className={styles.form} onSubmit={onSubmit}>
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="name">Nombre completo</label>
+            <label className={styles.label} htmlFor="name">
+              Nombre completo
+            </label>
             <Input
               id="name"
               name="name"
@@ -118,7 +158,9 @@ function Register() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="age">Edad</label>
+            <label className={styles.label} htmlFor="age">
+              Edad
+            </label>
             <Input
               id="age"
               name="age"
@@ -131,18 +173,24 @@ function Register() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="university">Universidad</label>
+            <label className={styles.label} htmlFor="university">
+              Universidad
+            </label>
             <Input
               id="university"
               name="university"
               value={formState.university}
               onChange={onInputChange}
             />
-            {errors.university && <p className={styles.error}>{errors.university}</p>}
+            {errors.university && (
+              <p className={styles.error}>{errors.university}</p>
+            )}
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="career">Carrera</label>
+            <label className={styles.label} htmlFor="career">
+              Carrera
+            </label>
             <Input
               id="career"
               name="career"
@@ -153,54 +201,36 @@ function Register() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="semester">Semestre</label>
+            <label className={styles.label} htmlFor="semester">
+              Semestre
+            </label>
             <Input
               id="semester"
               name="semester"
               value={formState.semester}
               onChange={onInputChange}
             />
-            {errors.semester && <p className={styles.error}>{errors.semester}</p>}
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="email">Correo</label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formState.email}
-              onChange={onInputChange}
-              required
-            />
-            {errors.email && <p className={styles.error}>{errors.email}</p>}
-          </div>
-
-          <div className={styles.fieldGroup}>
-            <label className={styles.label} htmlFor="password">Contraseña</label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formState.password}
-              onChange={onInputChange}
-              required
-            />
-            {errors.password && <p className={styles.error}>{errors.password}</p>}
+            {errors.semester && (
+              <p className={styles.error}>{errors.semester}</p>
+            )}
           </div>
 
           <div className={styles.actions}>
-            <Button type="submit" disabled={isChecking} fullWidth>
-              {isChecking ? 'Creando cuenta...' : 'Registrarme'}
+            <Button type="submit" disabled={saving} fullWidth>
+              {saving ? 'Guardando cambios...' : 'Guardar cambios'}
             </Button>
 
-            <span style={{ fontSize: '0.9rem' }}>
-              ¿Ya tienes cuenta?{' '}
-              <Link to="/login">Inicia sesión aquí</Link>
-            </span>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              fullWidth
+            >
+              Cancelar
+            </Button>
 
-            {errorMessage && (
-              <p className={styles.error}>{errorMessage}</p>
+            {generalError && (
+              <p className={styles.error}>{generalError}</p>
             )}
           </div>
         </form>
@@ -209,4 +239,4 @@ function Register() {
   )
 }
 
-export default Register
+export default EditProfile

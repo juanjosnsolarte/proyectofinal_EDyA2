@@ -1,0 +1,14 @@
+.wrapper {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+}
+
+.text {
+  font-size: 3rem;
+  color: var(--primary);
+  font-weight: bold;
+}

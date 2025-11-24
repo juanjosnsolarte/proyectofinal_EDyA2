@@ -1,0 +1,54 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Tema por defecto (dark) */
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --text: #f0f0f0;
+  --bg: #0f0f0f;
+  --card-bg: #1a1a1a;
+}
+
+/* Tema oscuro */
+:root[data-theme='dark'] {
+  --primary: #7c3aed;
+  --primary-dark: #5b21b6;
+  --text: #f0f0f0;
+  --bg: #0f0f0f;
+  --card-bg: #1a1a1a;
+}
+
+/* Tema claro */
+:root[data-theme='light'] {
+  --primary: #4c1d95;
+  --primary-dark: #2e1065;
+  --text: #111827;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+}
+
+/* Tipografía */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+.commentAuthorLink {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.commentAuthorLink:hover {
+  color: var(--primary); 
+}
+
+.commentAuthorText {
+  color: var(--text);
+}
