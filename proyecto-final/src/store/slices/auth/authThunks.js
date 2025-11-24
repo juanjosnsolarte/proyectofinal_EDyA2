@@ -4,6 +4,8 @@ import {
   updateProfile,
   signOut,
   deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from 'firebase/auth'
 import {
   doc,
@@ -18,7 +20,6 @@ import {
 } from 'firebase/firestore'
 import {
   ref,
-  get as rtdbGet,
   remove as rtdbRemove,
 } from 'firebase/database'
 
@@ -194,7 +195,7 @@ export const updateProfileData = (fields) => {
   }
 }
 
-export const deleteCurrentUserAccount = () => {
+export const deleteCurrentUserAccount = (password) => {
   return async (dispatch) => {
     dispatch(checkingCredentials())
 
@@ -204,9 +205,21 @@ export const deleteCurrentUserAccount = () => {
       return { ok: false, errorMessage: 'No hay usuario autenticado.' }
     }
 
+    if (!password) {
+      const msg = 'Debes escribir tu contraseña para eliminar la cuenta.'
+      dispatch(setAuthError(msg))
+      return { ok: false, errorMessage: msg }
+    }
+
     const uid = current.uid
 
     try {
+      const credential = EmailAuthProvider.credential(
+        current.email,
+        password
+      )
+      await reauthenticateWithCredential(current, credential)
+
       const postsRef = collection(db, 'posts')
       const qPosts = query(postsRef, where('usuarioId', '==', uid))
       const postsSnap = await getDocs(qPosts)
@@ -233,7 +246,10 @@ export const deleteCurrentUserAccount = () => {
         if (postData.usuarioId === uid) continue
 
         const commentsRef = collection(db, `posts/${postId}/comments`)
-        const qUserComments = query(commentsRef, where('usuarioId', '==', uid))
+        const qUserComments = query(
+          commentsRef,
+          where('usuarioId', '==', uid)
+        )
         const commentsSnap = await getDocs(qUserComments)
 
         for (const commentDoc of commentsSnap.docs) {
@@ -254,33 +270,26 @@ export const deleteCurrentUserAccount = () => {
         await deleteDoc(docSnap.ref)
       }
 
-      const chatsRef = ref(rtdb, 'chats')
-      const chatsSnap = await rtdbGet(chatsRef)
+      const chatsRefFs = collection(db, 'chats')
+      const qChats = query(
+        chatsRefFs,
+        where('participants', 'array-contains', uid)
+      )
+      const chatsSnapFs = await getDocs(qChats)
 
-      if (chatsSnap.exists()) {
-        chatsSnap.forEach((chatSnap) => {
-          const data = chatSnap.val() || {}
-          const participants = data.participants || {}
+      for (const chatDoc of chatsSnapFs.docs) {
+        const chatId = chatDoc.id
 
-          if (participants[uid]) {
-            const chatId = chatSnap.key
-            const chatRef = ref(rtdb, `chats/${chatId}`)
-            rtdbRemove(chatRef)
-          }
-        })
+        await deleteDoc(chatDoc.ref)
+
+        const messagesRef = ref(rtdb, `messages/${chatId}`)
+        await rtdbRemove(messagesRef)
       }
 
       const userDocRef = doc(db, 'users', uid)
       await deleteDoc(userDocRef)
 
-      try {
-        await deleteUser(current)
-      } catch (error) {
-        console.error(
-          'No se pudo borrar el usuario de Auth (probablemente requiere login reciente):',
-          error
-        )
-      }
+      await deleteUser(current)
 
       dispatch(logout(null))
 
@@ -288,10 +297,16 @@ export const deleteCurrentUserAccount = () => {
     } catch (error) {
       console.error('Error al eliminar cuenta:', error)
       let message = 'No se pudo eliminar la cuenta.'
-      if (error.code === 'auth/requires-recent-login') {
+
+      if (error.code === 'auth/wrong-password') {
+        message = 'La contraseña es incorrecta.'
+      } else if (error.code === 'auth/too-many-requests') {
+        message = 'Demasiados intentos. Intenta de nuevo más tarde.'
+      } else if (error.code === 'auth/requires-recent-login') {
         message =
-          'Por seguridad, vuelve a iniciar sesión y luego intenta eliminar la cuenta de nuevo.'
+          'Por seguridad, vuelve a iniciar sesión y luego intenta eliminar tu cuenta de nuevo.'
       }
+
       dispatch(setAuthError(message))
       return { ok: false, errorMessage: message }
     }

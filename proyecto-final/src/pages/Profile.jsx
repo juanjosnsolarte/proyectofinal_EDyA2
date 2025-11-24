@@ -181,12 +181,21 @@ function Profile() {
 
     const confirmFirst = window.confirm(
       '¿Seguro que quieres eliminar tu cuenta?\n' +
+        'Se borrarán tus publicaciones, comentarios, amistades y chats.\n' +
         'Esta acción NO se puede deshacer.'
     )
 
     if (!confirmFirst) return
 
-    const result = await dispatch(deleteCurrentUserAccount())
+    const password = window.prompt(
+      'Por seguridad, escribe tu contraseña actual para confirmar:'
+    )
+
+    if (!password) {
+      return
+    }
+
+    const result = await dispatch(deleteCurrentUserAccount(password))
 
     if (result?.ok) {
       alert('Tu cuenta ha sido eliminada correctamente.')

@@ -17,7 +17,9 @@ function App() {
   const isPrivateRoute =
     location.pathname.startsWith('/feed') ||
     location.pathname.startsWith('/profile') ||
-    location.pathname.startsWith('/friends') 
+    location.pathname.startsWith('/friends') ||
+    location.pathname.startsWith('/create-post') ||
+    location.pathname.startsWith('/chats')
 
   return (
     <ThemeProvider>
@@ -33,7 +35,6 @@ function App() {
             gap: '1rem',
           }}
         >
-          <ThemeToggle />
 
           {isPrivateRoute && (
             <button
