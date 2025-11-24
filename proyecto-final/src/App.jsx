@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
-import ThemeToggle from './components/Shared/ThemeToggle'
 import AuthObserver from './components/Auth/AuthObserver'
 import { AppRoutes } from './routes/AppRoutes'
 import { logoutFirebase } from './store/slices/auth/authThunks'

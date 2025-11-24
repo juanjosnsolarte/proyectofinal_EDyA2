@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import styles from '../styles/pages/CreatePost.module.scss'
+import styles from '../styles/pages/createPost.module.scss'
 import { createPost } from '../store/slices/posts/postThunks'
 
 const POST_TYPES = [
