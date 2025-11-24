@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { fetchPosts } from '../store/slices/posts/postThunks'
 import AddComment from '../components/Comments/AddComment'
 import CommentList from '../components/Comments/CommentList'
-import styles from '../styles/pages/feed.module.scss'
+import styles from '../styles/pages/Feed.module.scss'
 
 function Feed() {
   const dispatch = useDispatch()
