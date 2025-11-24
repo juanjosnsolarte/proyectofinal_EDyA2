@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
-import styles from '../styles/pages/profile.module.scss'
+import styles from '../styles/pages/Profile.module.scss'
 import Button from '../components/Shared/Button'
 import Card from '../components/Shared/Card'
 import {

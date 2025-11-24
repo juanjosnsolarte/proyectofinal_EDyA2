@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import styles from '../styles/pages/register.module.scss'
+import styles from '../styles/pages/Register.module.scss'
 import Input from '../components/Shared/Input'
 import Button from '../components/Shared/Button'
 import { updateProfileData } from '../store/slices/auth/authThunks'
